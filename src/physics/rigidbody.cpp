@@ -80,9 +80,12 @@ void Rigidbody::addVelocityChangeForce(fm::vec3 force)
 
 void Rigidbody::addImplicitForce(double delta)
 {
-    // Sets the acceleration for the object and applies it to the velocity by multiplying it by delta ti,e
+    // accounts for drag
+    fm::vec3 totalForce = fm::vec3(m_force.x *  1 / (m_drag + 1), m_force.y *  1 / (m_airDrag + 1), m_force.z *  1 / (m_drag + 1));
+
+    // Sets the acceleration for the object and applies it to the velocity by multiplying it by delta time
     // then applies the position to the entity
-    fm::vec3 acceleration = m_force;
+    fm::vec3 acceleration = totalForce;
     m_velocity += acceleration * static_cast<float>(delta);
     entity.transform.addPosition(m_velocity * static_cast<float>(delta));
     m_force = fm::vec3::zero();

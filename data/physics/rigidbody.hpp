@@ -32,6 +32,7 @@ namespace Engine {
             PUBLIC bool m_useGravity = false;
             // not implemented yet
             PUBLIC float m_drag = 0.f;
+            PUBLIC float m_airDrag = 0.f;
             // mass of the entity
             PUBLIC float m_mass = 1.f;
 

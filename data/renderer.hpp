@@ -15,14 +15,14 @@ namespace Engine {
 
     // FullscreenMode is just an enumerator to store different Renderer states.
     // pretty self explanitory.
-    enum FullscreenMode {
+    enum class FullscreenMode {
         Fullscreen              = 0x01,
         Borderless              = 0x02,
         BorderlessRenderered      = 0x03,
         Renderered                = 0x04
     };
 
-    enum VSyncMode {
+    enum class VSyncMode {
         On                      = 1,
         Off                     = 0,
         Adaptive                =-1,
@@ -89,7 +89,6 @@ namespace Engine {
         // if a bucket has no data, sorting it is a waste of resources.
         std::array<bool, renderer_maxLayers> m_bucketHasData = { false };
 
-        std::shared_ptr<Model> m_mainFramebufferModel;
         std::shared_ptr<Material> m_mainFramebufferMaterial;
 
         // draws the main framebuffer view
@@ -99,6 +98,9 @@ namespace Engine {
 
     // TODO : put this somewhere better (or dont)
         bool m_viewportDirty = false;
+
+        // draw the main camera's view?
+        bool m_drawView = true;
 
         // these are setters/getters to ensure that targetFrameDelta and
         // targetFramesPerSecond are representing the same thing.

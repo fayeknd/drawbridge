@@ -151,7 +151,7 @@ void DebugUI::drawDebugger() {
             float nc = cam->getNearClip();
             float fc = cam->getFarClip();
             float ortho = cam->getOrthoSize();
-            int proj = cam->getProjectionMode();
+            int proj = static_cast<int>(cam->getProjectionMode());
             std::string projFormat;
             switch (proj) {
                 case (1):  projFormat = "Orthographic";      break;
@@ -200,7 +200,7 @@ void DebugUI::drawDebugger() {
         ImGui::Separator();
 
         float fps = Renderer::get().getTargetFPS();
-        int vsm = Renderer::get().getVSyncMode();
+        int vsm = static_cast<int>(Renderer::get().getVSyncMode());
         std::string vsmFormat;
 
         switch (vsm) {
@@ -250,9 +250,11 @@ void DebugLine::_genLine() {
     glEnableVertexAttribArray(shaderVertexAttrib_Colour);
 
     glBindVertexArray(0);
+    m_hasInit = true;
 }
 
 void DebugLine::_deleteLine() {
+    if (!m_hasInit || !GLContext::get().isGLReady()) return;
     glDeleteBuffers(1, &m_vbo);
     glDeleteVertexArrays(1, &m_vao);
 }
@@ -299,7 +301,7 @@ ImGuiID dockerID;
 void DebugUI::drawPropertyEditor() {
     //ImGui::ShowDemoWindow();
 
-    ImGuiWindowFlags parentFlags = ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_MenuBar;
+    ImGuiWindowFlags parentFlags = ImGuiWindowFlags_MenuBar;
     ImGui::Begin("Tools", nullptr, parentFlags);
 
     ImGuiTableFlags tableFlags = ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersInnerV;

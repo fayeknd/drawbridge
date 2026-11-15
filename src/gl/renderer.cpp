@@ -274,12 +274,12 @@ int Renderer::createWnd(fm::uvec2 size, std::string title, FullscreenMode fsMode
     // set the vsync mode
     setVSyncMode(VSyncMode::On);
 
-    // create the plane to render the main framebuffer to
-    m_mainFramebufferModel = Model::primitive(Plane);
+    // create the default shaders
+    ShaderProgram::_createDefaultShaders();
 
     // create the material for rendering the framebuffer
     m_mainFramebufferMaterial = Material::create();
-    m_mainFramebufferMaterial->m_program = ShaderProgram::createProgramFromPath("stuff=>shaders/postprocess.glsl");
+    m_mainFramebufferMaterial->m_program = ShaderProgram::getShaderViaKey(shader_unlitShader);
     // costs no extra to make this material transparent
     m_mainFramebufferMaterial->m_data.m_hasTransparency = true;
 
@@ -292,12 +292,6 @@ int Renderer::createWnd(fm::uvec2 size, std::string title, FullscreenMode fsMode
     GLint maxSlots;
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxSlots); 
     GLContext::get().m_maxTextureSlots = maxSlots; 
-
-    // create the default shaders
-    ShaderProgram::_createDefaultShaders();
-
-    // add the main entrypoint component to the root entity.
-    Entity::s_root->addComponent<MainComponent>();
 
     // Renderer creation succeeded!!
     return WINDOW_CREATION_SUCCESS;
@@ -425,6 +419,7 @@ void Renderer::beginGameLoop() {
 void Renderer::preFramePollEvents() {
     // poll glfw events.
     glfwPollEvents(); 
+    Debug::DebugUI::get().drawImGuiInterface_framebegin();
     Input::pollStart();
     PhysicsImpl::pollPhysics();
 }
@@ -433,12 +428,12 @@ void Renderer::preFramePollEvents() {
 void Renderer::postFramePollEvents() {
     // update the input system
     flushRenderCommands(); // draw using the render commands and flush them after.
-    Debug::DebugUI::get().drawImGuiInterface_framebegin();
     Debug::DebugUI::get().drawImGuiInterface_frameend();
     Entity::_transformFlagReset();
     Entity::_releaseQueuedEntities();
     Input::pollEnd();
     ObjectRegistry::pollGC();
+    Texture2D::restoreTextureUnitState();
 }
 
 // clean up the program after exiting
@@ -463,7 +458,10 @@ void Renderer::flushRenderCommands() {
     // LayerRegistry::get() is annoying to type
     LayerRegistry& registry = LayerRegistry::get();
 
-    // iterate through all our layers
+    // store a ptr to the active camera to rebind it after. 
+    auto activeCam = Camera::activeCamera();
+
+    // first, sort all the buckets
     for (const auto& layer : registry.getLayerStack()) {
         // if there is no data for this layer, skip it.
         if (!m_bucketHasData[layer.m_layerID]) continue;
@@ -475,74 +473,72 @@ void Renderer::flushRenderCommands() {
         std::sort(bucket.begin(), bucket.end(), [](const RenderCommand& a, const RenderCommand& b) {
             return a.m_sortKey < b.m_sortKey;
         });
+    }
 
-        // store a ptr to the actual active cam
-        auto activeCam = Camera::activeCamera();
-        // store the active framebuffer
-        auto camFB = Camera::activeCamera()->m_framebuffer;
+    // loop through every framebuffer
+    for (const auto& fb : Framebuffer::framebufferMap()) {
+        auto fbPtr = fb.second.lock();
+        if (!fbPtr) continue;    
+
+        // get this cam instance
+        auto thisCam = fbPtr->getCamera();
         
-        // to avoid any desync in something like portals or mirrors,
-        // or whatever you may use framebuffers for, we render the
-        // other cameras first, so their views are up-to-date.
-        // then we render the actual camera view last.
+        // null check
+        if (!thisCam) continue;
+        
+        // no point rendering for a camera that isn't enabled
+        if (!thisCam->getEntity().m_enabled) continue; 
 
-        for (const auto& fb : Framebuffer::framebufferMap()) {
-            if (!fb.second.lock()) continue;
-            
-            auto fbPtr = fb.second.lock();
-            // the main camera view gets rendered last
-            
-            if (fbPtr == camFB) continue;
-            
-            // get this cam instance
-            auto thisCam = fbPtr->getCamera();
-            // this is for cameras, if the framebuffer is on something else,
-            // the user has to sort that out
-            if (!thisCam) continue;
+        // set this as the active camera just to render.
+        Camera::setActiveCamera(thisCam);
+        
+        // bind the framebuffer
+        fbPtr->bindFramebuffer();
 
-            // no point rendering for a camera that isn't enabled
-            if (!thisCam->getEntity().m_enabled) continue; 
+        // clear the screen
+        glClearColor(thisCam->m_clearCol.x, thisCam->m_clearCol.y, thisCam->m_clearCol.z, thisCam->m_clearCol.w);
+        glClear(thisCam->m_clearFlags);
+        
+        glViewport(0, 0, fbPtr->getRenderTexture()->getSize().x, fbPtr->getRenderTexture()->getSize().y);
 
-            // set this as the active camera just to render.
-            Camera::setActiveCamera(thisCam);
-         
-            // bind the framebuffer
-            fbPtr->bindFramebuffer();
+        // iterate through all our layers
+        for (const auto& layer : registry.getLayerStack()) {
+            // if there is no data for this layer, skip it.
+            if (!m_bucketHasData[layer.m_layerID]) continue;
 
-            // clear the screen
-            glClear(thisCam->m_clearFlags);
-            glClearColor(thisCam->m_clearCol.x, thisCam->m_clearCol.y, thisCam->m_clearCol.z, thisCam->m_clearCol.w);
+            // get the render command bucket
+            auto& bucket = m_commandBuckets[layer.m_layerID];
 
-            // run the draw functions 
+            // call the draw callbacks, drawing onto this cam view
             for (const auto& command : bucket) {
                 command.drawCallback(command.m_component);
             }
-            
         }
 
-        // reset the active camera
-        Camera::setActiveCamera(activeCam);
-        camFB->bindFramebuffer();
-        
-        // clear the screen 
-        glClearColor(activeCam->m_clearCol.x, activeCam->m_clearCol.y, activeCam->m_clearCol.z, activeCam->m_clearCol.w);
-        glClear(activeCam->m_clearFlags);
+        // do any post process stages
+        fbPtr->doPostProcess();
+    }
 
-        // run the draw functions once more 
-        for (const auto& command : bucket) {
-            command.drawCallback(command.m_component);
-        }
+    // clear the render buckets
+    for (const auto& layer : registry.getLayerStack()) {
+        // if there is no data for this layer, skip it.
+        if (!m_bucketHasData[layer.m_layerID]) continue;
 
-        GLContext::get().glState.m_currentFramebuffer = 0;
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        _drawView(camFB.get());
+        // get the render command bucket
+        auto& bucket = m_commandBuckets[layer.m_layerID];
 
         // draw callbacks ran, we can clear the bucket now.
         bucket.clear(); 
         m_bucketHasData[layer.m_layerID] = false;
-
     }
+
+    // set the active framebuffer to the screen default framebuffer
+    Framebuffer::unbindFramebuffers();
+    Camera::setActiveCamera(activeCam);
+
+    // draw the main camera's view onto the screen
+    _drawView(Camera::activeCamera()->m_framebuffer.get());
+
 }
 
 uint64_t Renderer::genSortKey(bool transparent, Material *mat, float depth) {
@@ -583,6 +579,13 @@ uint16_t Renderer::compressPtrToHash(const void* ptr) {
 
 void Renderer::_drawView(Framebuffer *fb) {
 
+    // return if we aren't drawing the main view
+    if (!m_drawView) {
+        glClearColor(0,0,0,1);
+        glClear(GL_COLOR_BUFFER_BIT);
+        return;
+    }
+
     glDisable(GL_DEPTH_TEST);
     // set the viewport size to fit the window
     glViewport(0, 0, m_wndSize.x, m_wndSize.y);
@@ -591,10 +594,10 @@ void Renderer::_drawView(Framebuffer *fb) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // set the material texture to the rendertexture
-    m_mainFramebufferMaterial->setAlbedoTx(fb->m_renderTexture);
+    m_mainFramebufferMaterial->setAlbedoTx(fb->getRenderTexture());
 
     // draw the stuff!
-    m_mainFramebufferModel->draw(m_mainFramebufferMaterial, fm::mat4::identity(), fm::mat4::identity());
+    Model::primitive(Primitive::InvertedPlane)->draw(m_mainFramebufferMaterial);
 }
 
 // needs to be a setter because the fb material is private

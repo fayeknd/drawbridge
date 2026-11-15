@@ -1,0 +1,57 @@
+#!/bin/bash
+set -e
+
+if [ "$1" == "-win" ]; then
+
+    echo "Building for Windows, then running..."
+    
+    if [ "$2" == "-fresh" ]; then
+        echo "Fresh build! This might take a minute..."
+        rm -rf ./build/windows 
+        if [ "$3" == "-release" ]; then
+            echo "Release build"
+            cmake -B build/windows -DCMAKE_TOOLCHAIN_FILE="$PWD/windows-toolchain.cmake" --fresh -DCMAKE_BUILD_TYPE=MinSizeRel
+        else
+            echo "Debug build"
+            cmake -B build/windows -DCMAKE_TOOLCHAIN_FILE="$PWD/windows-toolchain.cmake" --fresh
+        fi
+    else
+        if [ "$2" == "-release" ]; then
+            echo "Release build"
+            cmake -B build/windows -DCMAKE_TOOLCHAIN_FILE="$PWD/windows-toolchain.cmake" -DCMAKE_BUILD_TYPE=MinSizeRel
+        else
+            echo "Debug build"
+            cmake -B build/windows -DCMAKE_TOOLCHAIN_FILE="$PWD/windows-toolchain.cmake" 
+        fi
+    fi
+    cmake --build build/windows
+    
+    echo "Launching Editor   executable..."
+    wine ./build/windows/editor.exe
+else
+    echo "Building for Linux, then running..."
+    
+    if [ "$1" == "-fresh" ]; then
+        echo "Fresh build! This might take a minute..."
+        rm -rf ./build/linux
+        if [ "$2" == "-release" ]; then
+            echo "Release build"
+            cmake -B build/linux --fresh -DCMAKE_BUILD_TYPE=MinSizeRel
+        else
+            echo "Debug build"
+            cmake -B build/linux --fresh
+        fi
+    else
+        if [ "$1" == "-release" ]; then
+            echo "Release build"
+            cmake -B build/linux -DCMAKE_BUILD_TYPE=MinSizeRel
+        else
+            echo "Debug build"
+            cmake -B build/linux
+        fi
+    fi
+    cmake --build build/linux 
+    echo "Launching Editor binary..."
+    
+    ./build/linux/editor
+fi 

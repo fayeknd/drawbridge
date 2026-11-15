@@ -63,6 +63,7 @@ unsigned char* Texture2D::_processRawBytes(bytes& bytes, std::shared_ptr<Texture
     return out;
 }
 
+// ASSIMP, NOT ARTIFICIAL INTELLIGENCE - faye
 std::shared_ptr<Texture2D> Texture2D::createTextureFromAi(aiMaterial* mat, const aiScene* scene, TextureType type) {
     
     // to store the out path
@@ -101,7 +102,6 @@ std::shared_ptr<Texture2D> Texture2D::createTextureFromAi(aiMaterial* mat, const
         return tx;
     }
 
-    // old way failed, attempt modern way. 
     auto embeddedTx = scene->GetEmbeddedTexture(path.c_str());
     if (embeddedTx != nullptr) {
         // yes! create the texture
@@ -128,11 +128,12 @@ std::shared_ptr<Texture2D> Texture2D::createTextureFromAi(aiMaterial* mat, const
         else {
 
             // not compressed, we can just make the texture as normal
+            bytes = reinterpret_cast<unsigned char*>(embeddedTx->pcData);
             tx->m_txSize = {embeddedTx->mWidth, embeddedTx->mHeight};
             tx->m_channelCount = 4;
         }
 
-        tx->_initTextureWithData(bytes, true);
+        tx->_initTextureWithData(bytes, !isCompressed);
         txPathToIDMap().emplace(tx->m_path, tx->getCacheID());
         return tx;
     }
@@ -192,7 +193,7 @@ std::shared_ptr<Texture2D> Texture2D::createTextureFromPath(std::filesystem::pat
     }
     // no existing texture.
 
-    stbi_set_flip_vertically_on_load(flipY);
+    stbi_set_flip_vertically_on_load(!flipY);
     std::shared_ptr<Texture2D> texture = std::shared_ptr<Texture2D>(new Texture2D);
     texture->m_path = path.string();
     // TODO : In case of error, return a default "error" texture instead.
@@ -443,4 +444,48 @@ void Texture2D::setFiltering(GLuint filtering) {
 
     glTexParameteri(m_txType, GL_TEXTURE_MIN_FILTER, mini_filter);
     glTexParameteri(m_txType, GL_TEXTURE_MAG_FILTER, m_filtering);
+}
+
+void Texture2D::restoreTextureUnitState() {
+
+    if (!m_unitStateBroken) return;
+    m_unitStateBroken = false;
+
+    // get the gl state
+    auto& state = GLContext::get().glState;
+
+    // reset the active texture to GL_TEXTURE0
+    glActiveTexture(GL_TEXTURE0);
+    // what id / type we are working with
+    GLuint unit0TexID = 0;
+    GLenum unit0TexType = GL_TEXTURE_2D;
+
+    // find which texture is meant to be on unit 0
+    auto queueCopy = state.m_txQueue;
+    while (!queueCopy.empty()) {
+        // front id
+        GLuint id = queueCopy.front();
+        queueCopy.pop();
+
+        // get the texture that was at the front of the queue via id
+        auto tx = Texture2D::getTextureViaID(id);
+        // is this texture:
+        // 1. valid
+        // 2. in the queue
+        // 3. is on unit 0
+        if (tx != nullptr && tx->m_inQueue && tx->m_unitID == 0) {
+            // yes, store this texture info
+            unit0TexID = tx->m_txID;
+            unit0TexType = tx->m_txType;
+            break;
+        }
+    }
+
+    // bind the texture we may or may not have
+    glBindTexture(unit0TexType, unit0TexID);
+
+    // set the active texture back to what we should expect
+    glActiveTexture(state.m_activeTextureUnit);
+
+
 }

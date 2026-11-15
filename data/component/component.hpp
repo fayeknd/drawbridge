@@ -108,7 +108,7 @@ namespace Engine {
 
         // material(s) to use
         // this was moved here so we don't have to dyanmic
-        // cast to an IRenderable when sending render data.
+        // cast to an ModelDraw when sending render data.
         // if the material is null, no render data.
         // else, we can determine if the material is transparent,
         // and use the appropriate depth function.
@@ -200,6 +200,7 @@ namespace Engine {
     };
 }
 
+// use this instead of "public:" in components
 #define component_public \
     public: \
         friend void Engine::initializeReflectionData(); \
@@ -212,7 +213,7 @@ namespace Engine {
         std::string_view getTypename() const override { \
             if (!_reflectionName.empty()) return _reflectionName; \
 \
-            return "UninitializedComponent"; \
+            return "UninitialisedComponent"; \
         } \
         std::vector<std::pair<ReflectableField, void*>> getFields() override { \
             using ComponentType = std::decay_t<std::remove_pointer_t<decltype(this)>>; \
@@ -226,4 +227,6 @@ namespace Engine {
             } \
             return _; \
         } public
-        
+
+// if you don't like how long component_public is
+#define cpublic component_public

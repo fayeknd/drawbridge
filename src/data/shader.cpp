@@ -13,6 +13,11 @@ std::unordered_map<std::string, CacheID>& ShaderProgram::stringToIDMap() {
     return map;
 }
 
+std::unordered_map<std::string, CacheID>& ShaderProgram::pathToIDMap() {
+    static std::unordered_map<std::string, CacheID> map;
+    return map;
+}
+
 ShaderProgram::~ShaderProgram() {
 
 }
@@ -36,10 +41,6 @@ void ShaderProgram::_createDefaultShaders() {
     // put any other permanent shaders here
 }
 
-// returns this shader's key (or name)
-std::string ShaderProgram::getKey() {
-    return m_key; 
-}
 // create program from a file on the disk.
 // can also be used to get a program from an archive
 // on the disk with the help of the resource manager.
@@ -64,12 +65,14 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createProgramFromPath(std::filesys
     auto _ = getShaderViaKey(shaderKey);
     if (_) return _; 
     // no cached shader found, continue.
-    
+
     // attempt to read an archived file
     bytes rcFile = ResourceManager::loadRaw(shaderSource.string()); 
     if (rcFile.size() > 0) {
         // file was in an archive, load it as data instead.
-        return createProgramFromData(rcFile.data(), rcFile.size(), shaderKey);
+        auto sh = createProgramFromData(rcFile.data(), rcFile.size(), shaderKey);
+        sh->m_resourcePath = shaderSource.string();
+        return sh;
     }
     // file was not in any archives in the string, continue loading 
     // as a regular file on disk.
@@ -94,8 +97,9 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createProgramFromPath(std::filesys
     file.close();
 
     // create a program from the string stream data.
-    return _createProgramFromStringStream(buf, shaderKey);
-
+    auto sh = _createProgramFromStringStream(buf, shaderKey);
+    sh->m_resourcePath = shaderSource.string();
+    return sh;
 }
 
 // create program from an unsigned char array of data.
@@ -121,8 +125,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createProgramFromData(unsigned cha
 // create program from a string stream. this string stream gets passed right through to _compileProgram().
 std::shared_ptr<ShaderProgram> ShaderProgram::_createProgramFromStringStream(std::stringstream& ss, std::string shaderKey) {
     // create a new shader program
-    auto program = std::shared_ptr<ShaderProgram>(new ShaderProgram);
-    
+    auto program = ResourceManager::newResource(new ShaderProgram());
     // set the new program's key
     program->m_key = shaderKey;
 
@@ -131,6 +134,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::_createProgramFromStringStream(std
         // if compilation succeeded, add the shader to the cache.
         program->_register();
         stringToIDMap().emplace(shaderKey, program->getCacheID());
+        pathToIDMap().emplace(program->m_resourcePath, program->getCacheID());
 
         return program;
     }
@@ -365,6 +369,25 @@ std::shared_ptr<ShaderProgram> ShaderProgram::getShaderViaKey(std::string shader
         return inst;
     }
     // no shader with that key in cache.
+    return nullptr;
+}
+
+std::shared_ptr<ShaderProgram> ShaderProgram::getShaderViaPath(std::string path) {
+    // loop through cache, try find cacheID matching shader path
+    auto it = pathToIDMap().find(path);
+    if (it != pathToIDMap().end()) {
+        
+        // got a cache id, try get an instance 
+        auto inst = ICachable::getCachedInstance(it->second);
+        if (!inst) {
+            // instance is null, shader must have been destroyed or is invalid.
+            // delete this entry from the map
+            pathToIDMap().erase(it);
+            return nullptr;
+        }
+        return inst;
+    }
+    // no shader with that path in cache.
     return nullptr;
 }
 

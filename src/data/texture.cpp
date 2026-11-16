@@ -24,7 +24,8 @@ std::unordered_map<std::string, CacheID>& Texture2D::txPathToIDMap() {
 
 std::shared_ptr<Texture2D> Texture2D::createRenderTexture(fm::uvec2 size, GLuint filtering, GLuint wrapping) {
     
-    std::shared_ptr<Texture2D> texture = std::shared_ptr<Texture2D>(new Texture2D);
+    auto texture = ResourceManager::newResource(new Texture2D());
+
     // set the texture params
     texture->m_txType         = GL_TEXTURE_2D;
     texture->m_wrapping       = wrapping;
@@ -105,8 +106,8 @@ std::shared_ptr<Texture2D> Texture2D::createTextureFromAi(aiMaterial* mat, const
     auto embeddedTx = scene->GetEmbeddedTexture(path.c_str());
     if (embeddedTx != nullptr) {
         // yes! create the texture
-        auto tx = std::shared_ptr<Texture2D>(new Texture2D());
-        tx->m_path = path;
+        auto tx = ResourceManager::newResource(new Texture2D());
+        tx->m_resourcePath = path;
 
         // check if this image is compressed or not
         bool isCompressed = (embeddedTx->mHeight == 0);
@@ -134,7 +135,7 @@ std::shared_ptr<Texture2D> Texture2D::createTextureFromAi(aiMaterial* mat, const
         }
 
         tx->_initTextureWithData(bytes, !isCompressed);
-        txPathToIDMap().emplace(tx->m_path, tx->getCacheID());
+        txPathToIDMap().emplace(tx->m_resourcePath, tx->getCacheID());
         return tx;
     }
 
@@ -194,8 +195,8 @@ std::shared_ptr<Texture2D> Texture2D::createTextureFromPath(std::filesystem::pat
     // no existing texture.
 
     stbi_set_flip_vertically_on_load(!flipY);
-    std::shared_ptr<Texture2D> texture = std::shared_ptr<Texture2D>(new Texture2D);
-    texture->m_path = path.string();
+    auto texture = ResourceManager::newResource(new Texture2D);
+    texture->m_resourcePath = path.string();
     // TODO : In case of error, return a default "error" texture instead.
     
     // check if the file is in an archive first
@@ -218,7 +219,7 @@ std::shared_ptr<Texture2D> Texture2D::createTextureFromPath(std::filesystem::pat
 
         // initialise texture with stbi data
         texture->_initTextureWithData(bytes, false, mipmap, format, filtering, internalFormat, wrapping, type);
-        txPathToIDMap().emplace(texture->m_path, texture->getCacheID());
+        txPathToIDMap().emplace(texture->m_resourcePath, texture->getCacheID());
         return texture;
     }
     // file not in an archive.
@@ -239,7 +240,7 @@ std::shared_ptr<Texture2D> Texture2D::createTextureFromPath(std::filesystem::pat
 
     // initialise texture with stbi data
     texture->_initTextureWithData(bytes, false, mipmap, format, filtering, internalFormat, wrapping, type);
-    txPathToIDMap().emplace(texture->m_path, texture->getCacheID());
+    txPathToIDMap().emplace(texture->m_resourcePath, texture->getCacheID());
     return texture;
 }
 

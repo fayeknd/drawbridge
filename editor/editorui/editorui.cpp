@@ -5,6 +5,7 @@
 #include <renderer.hpp>
 #include <imgui/imgui_internal.h>
 #include <debug.hpp>
+#include <resources.hpp>
 
 using namespace Engine;
 
@@ -22,6 +23,8 @@ void EditorUI::init() {
     cube->m_model = Model::primitive(Primitive::Cube);
     cube->m_material->setAlbedoTx(Texture2D::createTextureFromPath("stuff=>textures/me trying to flirt.png"));
 
+    cube->getEntity().addChild(Entity::create("TestChild"));
+
     m_uiCam->getEntity().transform.addPosition({0, 1, -3});
     m_uiCam->getEntity().transform.addRotationX(10);
 
@@ -31,6 +34,20 @@ void EditorUI::init() {
     m_uiCam->m_framebuffer->m_postProcessSteps.push_back(ShaderProgram::createProgramFromPath("stuff=>shaders/postprocess.glsl"));
     m_uiCam->m_framebuffer->setResizeWithWnd(false);
     
+    m_projectDir = ResourceManager::getBinaryDir().string() + '/' + resource_defaultProjectDir;
+
+    if (!std::filesystem::exists(m_projectDir)) {
+        if (std::error_code ec; !std::filesystem::create_directory(m_projectDir, ec)) {
+            log().logError("Failed to create directory '{}'! Error: {}", m_projectDir.string(), ec.message());
+        }
+        else {
+            log().logInfo("Created new project directory at {}.", m_projectDir.string());
+        }
+
+    }
+
+    log().logInfo("Trying to serialise resource...");
+    ResourceManager::saveResource(&cube->getEntity(), proj_"entity.meta");
 }
 
 void EditorUI::lateUpdate(double delta) {

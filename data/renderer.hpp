@@ -12,6 +12,7 @@ namespace Engine {
 
     // forward declaration(s)
     class Material;
+    class ModelDraw;
 
     // FullscreenMode is just an enumerator to store different Renderer states.
     // pretty self explanitory.
@@ -167,12 +168,12 @@ namespace Engine {
         
         // size: the Renderer size. leave at -1 for the default value of 800x800. 
         // title: Renderer title. -1 for default also.
-        // fsMode: fullscreen mode. by default is just Renderered.
+        // fsMode: fullscreen mode. by default is just Windowed.
         // monitor: leave null for now.
         // share: i don't really know what this does, it just gets passed through to glfwCreateRenderer.
         // extra_Renderer_hints: a lambda function to add your own Renderer hints in. create a function that
-        // has GLFWwindowHint() functions and pass that function through as a parameter. not required.
-        int createWnd(fm::uvec2 size = fm::uvec2(-1), std::string title = "-1", FullscreenMode fsMode = FullscreenMode::Renderered, GLFWmonitor* monitor = NULL, GLFWwindow* share = NULL, void(*extra_Renderer_hints)() = nullptr);
+        // has glfwWindowHint() functions and pass that function through as a parameter. not required.
+        int create(fm::uvec2 size = fm::uvec2(-1), std::string title = "-1", FullscreenMode fsMode = FullscreenMode::Renderered, GLFWmonitor* monitor = NULL, GLFWwindow* share = NULL, void(*extra_Renderer_hints)() = nullptr);
 
         // returns the current Renderer fullscreen state.
         FullscreenMode getFullscreenMode();
@@ -194,7 +195,7 @@ namespace Engine {
         // actual pipeline stuff
 
         // add a render command to the render pipeline
-        void queueRenderCommand(uint8_t layer, uint64_t sortKey, IComponent* component, void(*draw_callback)(IComponent*));
+        void queueRenderCommand(uint8_t layer, uint64_t sortKey, ModelDraw* component, void(*draw_callback)(ModelDraw*));
         void flushRenderCommands();
 
         // create a sort key for render commands to use

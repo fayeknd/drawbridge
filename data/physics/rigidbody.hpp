@@ -27,7 +27,7 @@ namespace Engine {
 
             // force to apply on next physics tick
             fm::vec3 m_force = fm::vec3::zero();
-        component_public:
+        public:
             // whether the component should use gravity
             PUBLIC bool m_useGravity = false;
             // not implemented yet

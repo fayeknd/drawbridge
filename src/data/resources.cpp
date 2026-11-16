@@ -98,7 +98,7 @@ const std::filesystem::path& ResourceManager::getBinaryDir() {
 std::shared_ptr<Archive> ResourceManager::getArchiveInPath(const std::string &path, std::string* outPath) {
     
     // get the first instance of the separator found in the string.
-    size_t index = path.find_first_of(resourceManagerSeparator);
+    size_t index = path.find_first_of(resource_archiveSeparator);
     if (index == std::string::npos) {
         // no instance of the separator in the string.
         return nullptr; 
@@ -115,7 +115,7 @@ std::shared_ptr<Archive> ResourceManager::getArchiveInPath(const std::string &pa
 
     // otherwise, set the outPath to the substr of the path var
     // after the separator. this is what the separatorLen const was for.
-    *outPath = path.substr(index + resourceManagerSeparatorLen, path.length());
+    *outPath = path.substr(index + resource_archiveSeparatorLen, path.length());
     return ar;
 }
 

@@ -63,7 +63,7 @@ void Framebuffer::_genBuffer(fm::uvec2 size) {
 std::shared_ptr<Framebuffer> Framebuffer::create(fm::uvec2 size, GLuint format) {
     
     // make our framebuffer
-    auto fb = std::shared_ptr<Framebuffer>(new Framebuffer());
+    auto fb = ResourceManager::newResource(new Framebuffer());
     // generate the framebuffer
     fb->_genBuffer(size);
     // register it to the objectregistry
@@ -155,11 +155,6 @@ void Framebuffer::_deleteBuffer() {
 
 Framebuffer::~Framebuffer() {
 
-    FramebufferID id = m_fbMapID;
-    // erase this framebuffer from the fb map
-    framebufferMap().erase(id);
-    // release the framebuffer id
-    framebufferIDPool().releaseID(id);
     // set the current framebuffer to 0 if this fb is bound
     auto& fb = GLContext::get().glState.m_currentFramebuffer;
     if (fb == m_bufferID) {

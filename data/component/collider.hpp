@@ -15,14 +15,16 @@ namespace Engine
     using Engine::LayerMask;
 
     // The shape of the collider
-    enum class ColliderShape
-    {
-        Box, Sphere, Cylinder, Capsule
+    enum class ColliderShape {
+        Box         = 0x00,
+        Sphere      = 0x01,
+        Cylinder    = 0x02,
+        Capsule     = 0x03,
     };
 
     class Collider : public ModelDraw
     {
-        component_public:
+        public:
             // contact point, stores the normal to where it was penetrated and how deep it penetrated
             struct Contact
             {
@@ -93,6 +95,7 @@ namespace Engine
             Collider(const fm::vec3& center, const float& radius);
             Collider(ColliderShape shape, const float& radius, const float& height);
             Collider(ColliderShape shape);
+            Collider() { m_shape = ColliderShape::Box; }
 
             // Collider collision checks
             bool IsCollidingWith(Collider& collider, Contact& out);

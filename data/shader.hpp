@@ -148,7 +148,7 @@ namespace Engine {
     // enable_shared_from_this enables the use of the shared_from_this() function
     // which allows you to pass a "this" pointer as a shared_ptr.
     // useful for self-registry into the program cache. (s_programCache)
-    class ShaderProgram : public ICachable<ShaderProgram> {
+    class ShaderProgram : public ICachable<ShaderProgram>, public IResource {
     private:
 
         static Logging::Logger& log() {
@@ -164,10 +164,14 @@ namespace Engine {
         // effectively the shader name. used for the unordered map.
         // this is not called the name because it is primarily used
         // as the key for the map.
-        std::string m_key;
+        PUBLIC std::string m_key;
 
         // a map of string keys to cacheid keys.
         static std::unordered_map<std::string, CacheID>& stringToIDMap();
+
+        // a map of paths to cacheid keys.
+        static std::unordered_map<std::string, CacheID>& pathToIDMap();
+
 
         // a cache of this shader's used uniforms. only a performance thing really.
         // glGetUniformLoc is an expensive function and storing the uniform locations
@@ -230,8 +234,13 @@ namespace Engine {
         // (if that shader exists, that is.)
         static std::shared_ptr<ShaderProgram> getShaderViaKey(std::string shaderKey);
 
+        static std::shared_ptr<ShaderProgram> getShaderViaPath(std::string path);
+
         // returns this shader's key (or name)
-        std::string getKey(); 
+        const std::string getKey() const { return m_key; } 
+
+        // returns this shader's path
+        const std::string getProgramPath() const { return m_resourcePath; };
 
         // binds this shader program to the gl state if it is not already bound;
         // marks this program as the shader to use for drawing.

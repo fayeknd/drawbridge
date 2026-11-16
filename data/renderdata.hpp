@@ -1,46 +1,35 @@
+#pragma once
 #include <GL/gl.h>
 #include <engine.h>
 #include <GLFW/glfw3.h>
+#include <resources.hpp>
 
 namespace Engine {
 
     // a simple struct containing some object render data.
-    struct RenderData {
-
+    class RenderData : public IResource {
+    public:
         // which direction defines "front" faces.
         // GL_CW for clockwise face winding.
         // GL_CCW for ant-clockwise face winding.
-        unsigned int m_frontFace = GL_CCW;
+        PUBLIC unsigned int m_frontFace = GL_CCW;
 
         // which face direction to cull.
-        unsigned int m_cullFace = GL_BACK;
+        PUBLIC unsigned int m_cullFace = GL_BACK;
 
-        unsigned int m_setPoly = GL_FRONT_AND_BACK;
+        PUBLIC unsigned int m_setPoly = GL_FRONT_AND_BACK;
 
         // what polygon mode opengl is drawing in.
         // GL_FILL for regular full tri drawing,
         // GL_LINE for wireframe rendering.
-        unsigned int m_polyMode = GL_FILL;
+        PUBLIC unsigned int m_polyMode = GL_FILL;
         
-        unsigned int m_blendFuncOpt = GL_SRC_ALPHA;
-        unsigned int m_blendFuncVal = GL_ONE_MINUS_SRC_ALPHA;
+        PUBLIC unsigned int m_blendFuncOpt = GL_SRC_ALPHA;
+        PUBLIC unsigned int m_blendFuncVal = GL_ONE_MINUS_SRC_ALPHA;
         
-        float m_lineWidth = 2.0f;
+        PUBLIC float m_lineWidth = 2.0f;
 
         // apply the render data
         void useRenderData();
     };
-
-    // comparator
-    inline bool operator==(const RenderData& v1, const RenderData& v2) {
-        return (
-            v1.m_frontFace    == v2.m_frontFace    &&
-            v1.m_cullFace     == v2.m_cullFace     &&
-            v1.m_setPoly      == v2.m_setPoly      &&
-            v1.m_polyMode     == v2.m_polyMode     &&
-            v1.m_blendFuncOpt == v2.m_blendFuncOpt &&
-            v1.m_blendFuncVal == v2.m_blendFuncVal &&
-            v1.m_lineWidth    == v2.m_lineWidth
-        );
-    }
 }

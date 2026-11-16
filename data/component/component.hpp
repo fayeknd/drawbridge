@@ -7,12 +7,9 @@
 #include <logger.hpp>
 #include <layer.hpp>
 #include <material.hpp>
-#include <field_reflect.hpp>
+#include <reflectable.hpp>
 
 namespace Engine {
-
-    // forward declaration
-    static inline void initializeReflectionData();
 
     // forward declaration to prevent
     // circular dependency issues.
@@ -31,10 +28,10 @@ namespace Engine {
     // assigned via a static template function.
     // More on that below
 
-    class IComponent {
-    public:
-        friend void Engine::initializeReflectionData();
+    class IComponent : public IEmbeddedResource {
     private:
+
+        virtual const bool canDrawImpl() const { return false; }
 
         static Logging::Logger& log() {
             static Logging::Logger instance("COMPONENT");
@@ -58,9 +55,6 @@ namespace Engine {
         // has this component's init() been run?
         bool m_hasInit;
 
-        // tell the instance to run draw(). 
-        static inline void _distributeDraw(IComponent* instance) { instance->draw(); }
-
     protected:
 
         // ignore this
@@ -70,19 +64,12 @@ namespace Engine {
 
         // init() is called when the component is added to an entity, once.
         virtual void init() {};
-        // final stage in the game loop. used for anything to do with drawing.
-        virtual void draw() {};
-
+        
         // actual physics update function
         virtual void physicsUpdate(double delta) {};
 
     public:
 
-        virtual std::vector<std::pair<ReflectableField, void*>> getFields() = 0;
-        virtual std::string_view getTypename() const = 0;
-
-        using ReflectionQueryFunc = const std::vector<ReflectableField>& (*)();
-        
         // get the typeid. this is unique for each component type.
         // the way this works: if this is called on a component
         // with the type of "PlayerComponent", it will create and
@@ -105,16 +92,6 @@ namespace Engine {
             static const ComponentTypeID id = _nextID();
             return id;
         }
-
-        // material(s) to use
-        // this was moved here so we don't have to dyanmic
-        // cast to an ModelDraw when sending render data.
-        // if the material is null, no render data.
-        // else, we can determine if the material is transparent,
-        // and use the appropriate depth function.
-        std::vector<std::shared_ptr<Material>> m_materials;
-        #define m_material m_materials[0]
-
 
         // marks if this instance should render or not 
         // (given it can even be rendered)
@@ -183,27 +160,27 @@ namespace Engine {
         // physics update calls an update every 50ms (same as minecraft yippee)
         void physicsUpdateImpl(double delta);
 
-        // adds draw() to the render bucket callback in renderer.hpp
-        void drawImpl(const Layer* layer);
-
         // called right before the object gets destroyed. (or dereferenced, 
         // the object won't be destroyed if there is a shared_ptr to it.
         // this function will still run in that scenario though. don't store
         // a shared_ptr to any component.)
         virtual void onDestroy() {};
 
-    
+        // does this component have the ability to draw?
+        // do not override canDrawImpl unless you know how
+        // render commands work
+        const bool canDraw() const { return canDrawImpl(); }
 
         // allow the Entity class full access to a component's functions.
         friend class Entity;
 
     };
 }
-
+/*
 // use this instead of "public:" in components
 #define component_public \
     public: \
-        friend void Engine::initializeReflectionData(); \
+        friend void Engine::initialiseReflectionData(); \
 \
     protected: \
         static inline std::string_view _reflectionName = ""; \
@@ -230,3 +207,4 @@ namespace Engine {
 
 // if you don't like how long component_public is
 #define cpublic component_public
+*/

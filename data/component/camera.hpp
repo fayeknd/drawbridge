@@ -64,7 +64,7 @@ namespace Engine {
         // we can set a new one.
         static inline std::queue<std::weak_ptr<Camera>> s_cameraQueue;
 
-    component_public:
+    public:
         static void setActiveCamera(Camera* c);
         static Camera* activeCamera();
 
@@ -76,7 +76,7 @@ namespace Engine {
         // unregister it.
         ~Camera();
 
-        std::shared_ptr<Framebuffer> m_framebuffer;
+        PUBLIC std::shared_ptr<Framebuffer> m_framebuffer;
 
         // gl clear colour
         PUBLIC fm::col m_clearCol = fm::col(0, 0, 0, 1);

@@ -138,28 +138,6 @@ add_custom_target(resources
     VERBATIM
 ) 
 
-# just the headers
-file(GLOB_RECURSE REFLECTABLE_HEADERS CONFIGURE_DEPENDS 
-    "${CMAKE_CURRENT_SOURCE_DIR}/data/component/*.hpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/data/*.hpp"
-)
-
-set(GENERATED_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/data/generated/generated_reflection.hpp")
-
-list(REMOVE_ITEM REFLECTABLE_HEADERS "${GENERATED_HEADER}")
-
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
-
-add_custom_command(
-    OUTPUT ${GENERATED_HEADER}
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/codegen.py ${GENERATED_HEADER} ${REFLECTABLE_HEADERS}
-    DEPENDS ${REFLECTABLE_HEADERS} ${CMAKE_CURRENT_SOURCE_DIR}/tools/codegen.py
-    COMMENT "Generating reflection header map..."
-    VERBATIM
-)
-
-add_custom_target(reflect_codegen DEPENDS ${GENERATED_HEADER})
-
 # configure what we're linking
 
 file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS 
@@ -199,11 +177,28 @@ set(EDITOR_TARGET_INCLUDES
     ${CMAKE_CURRENT_SOURCE_DIR}/editor
 )
 
+set(GENERATED_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/data/generated/generated_reflection.hpp")
+
+list(REMOVE_ITEM PROJECT_HEADERS "${GENERATED_HEADER}")
+
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+add_custom_command(
+    OUTPUT ${GENERATED_HEADER}
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/codegen.py ${GENERATED_HEADER} ${PROJECT_HEADERS}
+    DEPENDS ${PROJECT_HEADERS} ${CMAKE_CURRENT_SOURCE_DIR}/tools/codegen.py
+    COMMENT "Generating reflection header map..."
+    VERBATIM
+)
+
+add_custom_target(reflect_codegen DEPENDS ${GENERATED_HEADER})
+
+
 set(TARGET_LIBS glfw zip assimp)
 
 #add_compile_options(-O1 -g -fsanitize=address -fno-omit-frame-pointer)
-add_compile_options(-O3 -fno-omit-frame-pointer)
-#add_link_options(-fsanitize=address) # more detailed memory leak and segfault errors
+add_compile_options(-O1 -g -fno-omit-frame-pointer)
+add_link_options(-fsanitize=address) # more detailed memory leak and segfault errors
 
 # core engine lib
 add_library(engine ${PROJECT_HEADERS} ${ENGINE_SOURCES})

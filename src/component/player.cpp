@@ -11,8 +11,8 @@ using namespace Physics;
 using namespace Engine::Debug;
 
 void Player::init() {
-    camObject = Entity::create("Camera").get();
-    camObject->setParent(&entity);
+    camObject = Entity::create("Camera");
+    camObject->setParent(entity);
     rb = entity.addComponent<Rigidbody>().get();
 
     rb->m_mass = 1000000000000000000.f;
@@ -41,10 +41,6 @@ void Player::physicsUpdate(double delta) {
 }
 
 void Player::onDestroy() {
-    
-}
-
-void Player::draw() {
     
 }
 

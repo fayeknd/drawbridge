@@ -82,6 +82,7 @@ std::shared_ptr<Model> Model::createModelFromPath(std::filesystem::path path, st
     auto model = ResourceManager::newResource(new Model);
     // process the submeshes
     model->_processNode(scene->mRootNode, scene, materials);
+    model->m_resourcePath = path.string();
     return model;
 }
 

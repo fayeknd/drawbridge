@@ -272,7 +272,7 @@ namespace Engine {
             // is indeed a valid resource file. 
             file << resource_fileIdentifier << "\n";
             // write out the resource type
-            file << "@type " << desc->fullName << "\n{\n"; 
+            file << "@type " << desc->fullName << " {\n"; 
             // write out all the resource's serialisable fields to the file
             Serialise::serialiseFieldsToStream(resource->getFields(), file);
             // close off the file

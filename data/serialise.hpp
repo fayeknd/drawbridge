@@ -38,6 +38,7 @@ namespace Engine::Serialise {
         sharedPtrPathExtMap()[typeName] = [](const void* addr) -> IResource* {
             const auto& ptr = *static_cast<const std::weak_ptr<T>*>(addr);
             if (!ptr.expired()) return ptr.lock().get();
+            return nullptr;
         };
     }
 

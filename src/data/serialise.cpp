@@ -64,21 +64,24 @@ void Engine::Serialise::serialiseField(std::string_view fieldType, const void* f
     TRY_SERIALISE(fm::dvec3)
     TRY_SERIALISE(fm::dvec4)
     TRY_SERIALISE_STR(std::string)
+    TRY_SERIALISE_STR(std::string_view)
     TRY_SERIALISE_STR(char)
     TRY_SERIALISE_STR(unsigned char)
 
-    else if (auto contIt = containerSerialiserMap().find(std::string(fieldType)); contIt != containerSerialiserMap().end()) {
+    if (auto contIt = containerSerialiserMap().find(std::string(fieldType)); contIt != containerSerialiserMap().end()) {
         contIt->second(fieldPtr, out, indentLevel);
+        return;
     }
 
     // resource pointers (std::shared_ptr<Texture2D>, for example)
-    else if (auto ptrIt = sharedPtrPathExtMap().find(std::string(fieldType)); ptrIt != sharedPtrPathExtMap().end() ) {
+    if (auto ptrIt = sharedPtrPathExtMap().find(std::string(fieldType)); ptrIt != sharedPtrPathExtMap().end() ) {
         IResource* res = ptrIt->second(fieldPtr);
 
         // is this an embedded resource?
         // (dynamic_cast should be fine here,
         // serialisation doesn't run very often)
-        if (auto obj = dynamic_cast<IEmbeddedResource*>(res); !obj) {
+        // IGNORE THAT, DYNAMIC_REFL_CAST!!!!!!!
+        if (auto obj = dynamic_refl_cast<IEmbeddedResource*>(res); !obj) {
             if (res) {
                 std::string path = "";
                 // does this path have a resource it can choose a name from?
@@ -96,12 +99,13 @@ void Engine::Serialise::serialiseField(std::string_view fieldType, const void* f
         else {
             // this IS an embedded resource, treat it as such
             out << "@type " << obj->getFullTypename() << " {\n";
-            serialiseFieldsToStream(obj->getFields(), out, indentLevel + 1);
+            serialiseFieldsToStream(obj->getFields(), out, indentLevel);
             out << std::string(indentLevel * 4, ' ') << "}";
         }
+        return;
     }
     // nested reflected structs/classes
-    else if (auto typeIt = Reflection::getTypeRegistry().find(fieldType); typeIt != Reflection::getTypeRegistry().end()) {
+    if (auto typeIt = Reflection::getTypeRegistry().find(fieldType); typeIt != Reflection::getTypeRegistry().end()) {
         out << "{\n";
         std::vector<std::pair<ReflectableField, void*>> nestedFields;
         for (const auto& sub : typeIt->second->getFields()) {
@@ -112,5 +116,6 @@ void Engine::Serialise::serialiseField(std::string_view fieldType, const void* f
         }
         serialiseFieldsToStream(nestedFields, out, indentLevel + 1);
         out << std::string(indentLevel * 4, ' ') << "}";
+        return;
     }
 }

@@ -104,6 +104,7 @@ using namespace Engine;
             ns = get_namespaces(content, class_match.start())
 
             full_class_name = f"{ns}::{class_name}" if ns else class_name
+            full_class_names += full_class_name
 
             # create a safe function name (for example Engine_Physics_Rigidbody)
             safe_func_name = f"register_{full_class_name.replace('::', '_')}"
@@ -211,8 +212,12 @@ inline void Engine::Reflection::TypeInfo<{full_class_name}>::initTypeInfo() {{
             init_calls += f"    Engine::Reflection::TypeInfo<{full_class_name}>::initTypeInfo();\n"
 
     init_calls += "}\n"
+
+    # actually write our generated code
+    generated_code += includes + helper_functions + init_calls + "\nnamespace std {"
+
     # to ignore any warnings lol
-    generated_code += includes + helper_functions + init_calls + "\n#pragma GCC diagnostic pop\n"
+    generated_code += "}\n#pragma GCC diagnostic pop\n"
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, 'w') as f:

@@ -5,6 +5,13 @@
 #include <logger.hpp>
 #include <layer.hpp>
 
+
+// if you see any mention of a component type id, it no longer exists.
+// it used to be a uint16_t that represents a component type, 
+// which was used for the component map. However, that has since
+// been replaced 
+
+
 namespace Engine {
     
     // an alias so we don't have to keep typing "uint32_t"
@@ -13,7 +20,6 @@ namespace Engine {
     const EntityID NULLID = -1;
 
     constexpr const char* entityDefaultName = "Unnamed Entity";
-
 
     // Entities will just exist in memory in a tree of children and parents.
     // any components can be added and removed to any of them to do whatever 
@@ -102,7 +108,7 @@ namespace Engine {
         void _updateEnabled();
 
         // this entity's component map. access a component via a componentTypeID.
-        PUBLIC std::unordered_map<ComponentTypeID, std::shared_ptr<IComponent>> m_componentMap;
+        PUBLIC std::unordered_map<std::string_view, std::shared_ptr<IComponent>> m_componentMap;
 
         // this entity's component queue, for any components that have not been initialised yet.
         // this is required because if an entity is disabled, components will not run init().
@@ -157,7 +163,7 @@ namespace Engine {
         
     public:
 
-        std::unordered_map<ComponentTypeID, std::shared_ptr<IComponent>>& getComponentMap() {
+        std::unordered_map<std::string_view, std::shared_ptr<IComponent>>& getComponentMap() {
             return m_componentMap;
         }
 
@@ -274,9 +280,8 @@ namespace Engine {
             c->m_entity = this;
 
             // get the component type id
-            ComponentTypeID id = IComponent::getComponentTypeID<T>();
+            std::string_view id = Reflection::getFullTypenameOf<T>();
             // assign the component it's type id for easy internal lookup
-            c->m_typeID = id;
 
             // move the component to the component map
             m_componentMap[id] = std::move(c);
@@ -307,7 +312,7 @@ namespace Engine {
         std::shared_ptr<T> getComponent() {
 
             // try find a component with the type given in the component man
-            auto it = m_componentMap.find(IComponent::getComponentTypeID<T>());
+            auto it = m_componentMap.find(Reflection::getFullTypenameOf<T>());
             if (it != m_componentMap.end()) {
                 // component found
                 
@@ -325,7 +330,7 @@ namespace Engine {
         void removeComponent() {
 
             // try find the component
-            auto it = m_componentMap.find(IComponent::getComponentTypeID<T>());
+            auto it = m_componentMap.find(Reflection::getFullTypenameOf<T>());
             if (it != m_componentMap.end()) {
 
                 // component found. get a pointer to it

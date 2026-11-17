@@ -10,7 +10,6 @@
 
 namespace Engine {
     // no runtime overhead with marcos!
-
     #define PUBLIC \
         friend void Engine::Reflection::initialiseReflectionData(); \
         friend class ResourceManager; \
@@ -24,15 +23,12 @@ namespace Engine {
         std::string_view m_fieldType;
     };
 
+    // this did not have to be a namespace but it grew large quickly; 
+    // i dont want to fix it. it functions the same
     namespace Reflection {
       
         constexpr const char* reflection_uninitialised = "UninitialisedReflectable";
 
-        template <typename T>
-        static const std::vector<ReflectableField>& getComponentFields();
-
-        template <typename T>
-        static const std::string_view& getComponentTypename();
 
         template <typename T, typename ComponentType>
         static const T* getFieldPtr(const ComponentType& component, const ReflectableField& field) {
@@ -66,16 +62,21 @@ namespace Engine {
 
         // descriptor for a reflected class or type 
         struct TypeDescriptor {
+            
             std::string_view name     = reflection_uninitialised;
+            
             std::string_view fullName = reflection_uninitialised;
+            
             const std::vector<ReflectableField>& (*getFields)() = nullptr;
+            
             std::vector<std::pair<ReflectableField, void*>> (*getFieldsForInstance)(void* basePtr) = nullptr;
+            
             std::shared_ptr<void>(*createInstance)() = nullptr;
 
             void (*serialise)(const void* instancePtr, std::ostream& out, int indentLevel) = nullptr;
         };
 
-        // default template for unreflected classes or types 
+        // use this to get the type information on type T
         template <typename T>
         struct TypeInfo {
             static inline TypeDescriptor descriptor{};
@@ -108,7 +109,18 @@ namespace Engine {
             return instance;
         }
 
-        // forward declaration
+        // get the type name of T
+        template <typename T>
+        static inline std::string_view getTypenameOf() {
+            return TypeInfo<T>::descriptor.fullName;
+        }
+
+        template <typename T>
+        static inline std::string_view getFullTypenameOf() {
+            return TypeInfo<T>::descriptor.fullName;
+        }
+
+        // codegen.py generates this function
         void initialiseReflectionData();
 
         // reflectable interface. anything that derives from this is reflectable.
@@ -135,16 +147,48 @@ namespace Engine {
                 return _typeDesc ? _typeDesc->fullName : reflection_uninitialised;
             }
 
+        
             std::vector<std::pair<ReflectableField, void*>> getFields() {
                 if (!_typeDesc || !_typeDesc->getFieldsForInstance) return {};
                 return _typeDesc->getFieldsForInstance(this);
             }
         };
     }
+}
 
-    
-    template <typename T>
-    concept reflectable_hasReflectedParent = requires {
-        Reflection::getComponentFields<T>();
-    };
+
+// cast a reflectable type without crashing on fail,
+// taking advantage of reflection.
+// this is MUCH quicker than dynamic_cast<T>.
+template <typename T>
+T dynamic_refl_cast(Engine::Reflection::IReflectable* ptr) {
+    if (!ptr) return nullptr;
+
+    // getFullTypenameOf<MyType*> would fail,
+    // whereas getFullTypenameOf<MyType> wouldn't.
+    auto typeName = (std::is_pointer_v<T>) 
+        ? Engine::Reflection::getFullTypenameOf<std::remove_pointer_t<T>>()
+        : Engine::Reflection::getFullTypenameOf<T>();
+
+    if (ptr->getFullTypename() == typeName) {
+        return static_cast<T>(ptr);
+    }
+    return nullptr;
+}
+
+/// cast a reflectable type without crashing on fail,
+// taking advantage of reflection.
+// this is MUCH quicker than dynamic_cast<T>.
+template <typename T>
+std::shared_ptr<T> dynamic_refl_pointer_cast(std::shared_ptr<Engine::Reflection::IReflectable> ptr) {
+    if (!ptr) return nullptr;
+
+    auto typeName = (std::is_pointer_v<T>) 
+        ? Engine::Reflection::getFullTypenameOf<std::remove_pointer_t<T>>()
+        : Engine::Reflection::getFullTypenameOf<T>();
+
+    if (ptr->getFullTypename() == typeName) {
+        return static_pointer_cast<T>(ptr);
+    }
+    return nullptr;
 }

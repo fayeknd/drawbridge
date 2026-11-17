@@ -435,7 +435,7 @@ inline void Engine::Reflection::TypeInfo<Engine::Entity>::initTypeInfo() {
                 std::vector<Engine::ReflectableField> localFields = {
                     { "m_children", offsetof(Engine::Entity, m_children), "std::vector<std::weak_ptr<Entity>>" },
                     { "m_enabled", offsetof(Engine::Entity, m_enabled), "bool" },
-                    { "m_componentMap", offsetof(Engine::Entity, m_componentMap), "std::unordered_map<ComponentTypeID, std::shared_ptr<IComponent>>" },
+                    { "m_componentMap", offsetof(Engine::Entity, m_componentMap), "std::unordered_map<std::string_view, std::shared_ptr<IComponent>>" },
                     { "m_layer", offsetof(Engine::Entity, m_layer), "LayerID" },
                     { "m_isRenderable", offsetof(Engine::Entity, m_isRenderable), "bool" },
                     { "m_interpolatePhysics", offsetof(Engine::Entity, m_interpolatePhysics), "bool" },
@@ -1309,7 +1309,7 @@ inline void Engine::Reflection::initialiseReflectionData() {
     Engine::Reflection::TypeInfo<Engine::ModelDraw>::initTypeInfo();
     Engine::Reflection::TypeInfo<Engine::Player>::initTypeInfo();
     Engine::Serialise::registerVectorType<std::weak_ptr<Entity>>("std::vector<std::weak_ptr<Entity>>", "std::weak_ptr<Entity>");
-    Engine::Serialise::registerMapType<std::unordered_map<ComponentTypeID, std::shared_ptr<IComponent>>>("std::unordered_map<ComponentTypeID, std::shared_ptr<IComponent>>", "ComponentTypeID", "std::shared_ptr<IComponent>");
+    Engine::Serialise::registerMapType<std::unordered_map<std::string_view, std::shared_ptr<IComponent>>>("std::unordered_map<std::string_view, std::shared_ptr<IComponent>>", "std::string_view", "std::shared_ptr<IComponent>");
     Engine::Reflection::TypeInfo<Engine::Entity>::initTypeInfo();
     Engine::Serialise::registerVectorType<std::shared_ptr<ShaderProgram>>("std::vector<std::shared_ptr<ShaderProgram>>", "std::shared_ptr<ShaderProgram>");
     Engine::Reflection::TypeInfo<Engine::Framebuffer>::initTypeInfo();

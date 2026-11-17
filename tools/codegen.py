@@ -33,9 +33,9 @@ def gen_reflection(out_path, header_paths):
 
     # find classes, and everything up to the bracket after the class def {
     class_head_regex = re.compile(r'\b(?:class|struct)\s+(\w+)(?:\s*:\s*([^\{]+))?\{')
-    # look for members with the PUBLIC keyword in front of them
+    # look for members with the EXPORT keyword in front of them
     public_regex = re.compile(
-        r'\bPUBLIC\s+'
+        r'\bEXPORT\s+'
         r'((?:[^;<>,=]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)+?)\s+'  # type (allows commas inside for some layers of nesting)
         r'([a-zA-Z_]\w*)\s*'                                       # field name
         r'(?:=\s*[^;]+|\{[^;]*\})?\s*;'                            # any default initializer
@@ -93,7 +93,7 @@ using namespace Engine;
                         class_body = content[start_idx:i]
                         break
 
-            # check if this content has PUBLIC fields
+            # check if this content has EXPORT fields
             fields = public_regex.findall(class_body)
             
             is_resource = base_names and any(tag in base_names for tag in ("IResource"));

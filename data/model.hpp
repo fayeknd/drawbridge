@@ -18,7 +18,7 @@ namespace Engine {
     private:
 
         // resources need at least one public field
-        PUBLIC bool _;
+        EXPORT bool _;
 
         void _drawImpl(const std::vector<std::shared_ptr<Material>>& materials, fm::mat4 model, fm::mat4 vp);
 

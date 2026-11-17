@@ -59,7 +59,7 @@ namespace Engine {
 
         // marks if this instance should render or not 
         // (given it can even be rendered)
-        PUBLIC bool m_render = true;
+        EXPORT bool m_render = true;
 
         // returns if the init function has been run yet.
         bool hasInitRun(); 

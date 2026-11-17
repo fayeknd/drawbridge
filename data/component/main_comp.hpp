@@ -19,8 +19,8 @@ namespace Engine {
 
         Entity* square;
         Entity* cam;
-        PUBLIC float sensitivity = 0.25;
-        PUBLIC float speed = 3.0f;
+        EXPORT float sensitivity = 0.25;
+        EXPORT float speed = 3.0f;
 
     };
 }

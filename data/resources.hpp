@@ -24,7 +24,7 @@ namespace Engine {
     class IResource : public Reflection::IReflectable {
     protected:
 
-        PUBLIC std::string m_resourcePath;
+        EXPORT std::string m_resourcePath;
         std::string m_metaResourcePath; 
 
     public:

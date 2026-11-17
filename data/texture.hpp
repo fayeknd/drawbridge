@@ -12,7 +12,7 @@ struct aiScene;
 
 namespace Engine {
 
-    constexpr GLuint texture_defaultFiltering = GL_NEAREST;
+    constexpr GLuint texture_defaultFiltering = GL_LINEAR;
     constexpr GLuint texture_defaultFormat    = GL_RGBA;
     constexpr GLuint texture_defaultWrapping  = GL_REPEAT;
 
@@ -54,42 +54,42 @@ namespace Engine {
         GLuint m_unitID;
 
         // has this texture been generated?
-        PUBLIC bool m_txGenerated = false;
+        EXPORT bool m_txGenerated = false;
 
         // the texture ID
         GLuint m_txID;
 
         // format, like GL_RGB
-        PUBLIC GLuint m_format = texture_defaultFormat;
+        EXPORT GLuint m_format = texture_defaultFormat;
 
         // internal format that determines how OpenGL handles this.
         // i.e GL_RGBA32. we hopefully won't have to change this ever,
         // but there might be an edge case that this would fix.
-        PUBLIC GLuint m_internalFormat = texture_defaultFormat;
+        EXPORT GLuint m_internalFormat = texture_defaultFormat;
 
         // how many channels does this image have?
-        PUBLIC GLuint m_channelCount;
+        EXPORT GLuint m_channelCount;
 
         // texture filtering mode
-        PUBLIC GLuint m_filtering = texture_defaultFiltering;
+        EXPORT GLuint m_filtering = texture_defaultFiltering;
 
         // texture wrap mode
-        PUBLIC GLuint m_wrapping = texture_defaultWrapping;
+        EXPORT GLuint m_wrapping = texture_defaultWrapping;
 
         // type of texture
-        PUBLIC GLuint m_txType = GL_TEXTURE_2D;
+        EXPORT GLuint m_txType = GL_TEXTURE_2D;
 
         // texture size in pixels
-        PUBLIC fm::uvec2 m_txSize;
+        EXPORT fm::uvec2 m_txSize;
 
         // determines whether this texture is mipmapped or not
-        PUBLIC bool m_useMipmapping = true;
+        EXPORT bool m_useMipmapping = true;
 
         // is this texture in the texture queue?
         bool m_inQueue = false;
 
         // true if this texture is invalid and should not be bound
-        PUBLIC bool m_invalid = false;
+        EXPORT bool m_invalid = false;
 
         static unsigned char* _processRawBytes(bytes& in, std::shared_ptr<Texture2D> tx);
 
@@ -123,7 +123,7 @@ namespace Engine {
         // texture. this time, it's just going to create a new 
         // instance. trust the programmer. maybe we want differently
         // filtered textures.
-        static std::shared_ptr<Texture2D> createTextureFromPath(std::filesystem::path path, bool flipY = true, bool mipmap = false, GLuint format = texture_defaultFormat, GLuint filtering = texture_defaultFiltering, GLuint internalFormat = texture_defaultFormat, GLuint wrapping = texture_defaultWrapping, GLuint type = GL_TEXTURE_2D);
+        static std::shared_ptr<Texture2D> createTextureFromPath(std::filesystem::path path, bool flipY = true, bool mipmap = true, GLuint format = texture_defaultFormat, GLuint filtering = texture_defaultFiltering, GLuint internalFormat = texture_defaultFormat, GLuint wrapping = texture_defaultWrapping, GLuint type = GL_TEXTURE_2D);
 
         // create a render texture
         static std::shared_ptr<Texture2D> createRenderTexture(fm::uvec2 size = fm::uvec2::zero(), GLuint filtering = texture_defaultFiltering, GLuint wrapping = texture_defaultWrapping);

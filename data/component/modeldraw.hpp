@@ -32,15 +32,15 @@ namespace Engine {
         // if the material is null, no render data.
         // else, we can determine if the material is transparent,
         // and use the appropriate depth function.
-        PUBLIC std::vector<std::shared_ptr<Material>> m_materials;
+        EXPORT std::vector<std::shared_ptr<Material>> m_materials;
         #define m_material m_materials[0]
 
 
         // instance's render data
-        PUBLIC RenderData m_renderData = RenderData();
+        EXPORT RenderData m_renderData = RenderData();
 
         // model to draw
-        PUBLIC std::shared_ptr<Model> m_model = nullptr;
+        EXPORT std::shared_ptr<Model> m_model = nullptr;
         
         // material to use
         //std::shared_ptr<Material> m_material = nullptr; moved to component.hpp (explanation there)

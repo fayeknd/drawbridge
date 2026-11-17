@@ -10,7 +10,7 @@
 
 namespace Engine {
     // no runtime overhead with marcos!
-    #define PUBLIC \
+    #define EXPORT \
         friend void Engine::Reflection::initialiseReflectionData(); \
         friend class ResourceManager; \
         template <typename T> friend struct Engine::Reflection::TypeInfo; \

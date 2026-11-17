@@ -26,9 +26,9 @@ namespace Engine {
         Collider* collider;
         std::shared_ptr<Entity> camObject;
         Camera* cam;
-        PUBLIC float sensitivity = 0.25;
-        PUBLIC float speed = 3.0f;
-        PUBLIC bool toggleMovement;
-        PUBLIC bool toggleMouseMovement;
+        EXPORT float sensitivity = 0.25;
+        EXPORT float speed = 3.0f;
+        EXPORT bool toggleMovement;
+        EXPORT bool toggleMouseMovement;
     };
 }

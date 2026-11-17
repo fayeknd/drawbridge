@@ -10,7 +10,7 @@ namespace Engine {
     public:
 
         // camera used for the ui
-        PUBLIC std::shared_ptr<Camera> m_uiCam = nullptr;
+        EXPORT std::shared_ptr<Camera> m_uiCam = nullptr;
         // shortcut to the imgui IO
         ImGuiIO* m_io;
 
@@ -28,7 +28,7 @@ namespace Engine {
             return instance;
         }
 
-        PUBLIC std::filesystem::path m_projectDir;
+        EXPORT std::filesystem::path m_projectDir;
     
     };
 }

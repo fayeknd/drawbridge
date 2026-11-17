@@ -164,7 +164,7 @@ namespace Engine {
         // effectively the shader name. used for the unordered map.
         // this is not called the name because it is primarily used
         // as the key for the map.
-        PUBLIC std::string m_key;
+        EXPORT std::string m_key;
 
         // a map of string keys to cacheid keys.
         static std::unordered_map<std::string, CacheID>& stringToIDMap();

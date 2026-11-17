@@ -55,7 +55,7 @@ namespace Engine {
         // parent
         std::weak_ptr<Entity> m_parent;
         // list of children
-        PUBLIC std::vector<std::weak_ptr<Entity>> m_children;
+        EXPORT std::vector<std::weak_ptr<Entity>> m_children;
 
         // create the entity ID pool
         // responsible for allocating and deallocating IDs
@@ -94,7 +94,7 @@ namespace Engine {
         // if disabling this entity, we should still run all the 
         // update functions for that frame and then let it be disabled on the next.
         // this might be kind of stupid. if this needs to change lmk
-        PUBLIC bool m_enabled = true;
+        EXPORT bool m_enabled = true;
         // mark if the "enabled" state has changed
         bool m_enabledDirty = false;
 
@@ -108,7 +108,7 @@ namespace Engine {
         void _updateEnabled();
 
         // this entity's component map. access a component via a componentTypeID.
-        PUBLIC std::unordered_map<std::string_view, std::shared_ptr<IComponent>> m_componentMap;
+        EXPORT std::unordered_map<std::string_view, std::shared_ptr<IComponent>> m_componentMap;
 
         // this entity's component queue, for any components that have not been initialised yet.
         // this is required because if an entity is disabled, components will not run init().
@@ -143,11 +143,11 @@ namespace Engine {
         void _invalidateChildTransforms(); 
 
         // what layer is this on?
-        PUBLIC LayerID m_layer;
+        EXPORT LayerID m_layer;
 
         bool m_isTreeLeaf;
 
-        PUBLIC bool m_isRenderable = false;
+        EXPORT bool m_isRenderable = false;
 
         // update loop happens in Renderer, allow private function calling from
         // the Renderer class.
@@ -187,7 +187,7 @@ namespace Engine {
         fm::mat4 m_physicsGlobalMatrixCache = fm::mat4::identity();
 
         // should we interpolate physics?
-        PUBLIC bool m_interpolatePhysics = true;
+        EXPORT bool m_interpolatePhysics = true;
 
         // get layer stuff
         const LayerID getLayerID() const { return m_layer; } 
@@ -207,7 +207,7 @@ namespace Engine {
 
         // this entity's transform. by itself, doesn't actually do anything.
         // only useful when utilised by things such as a rendering component.
-        PUBLIC Transform transform;
+        EXPORT Transform transform;
 
         ~Entity();
 
@@ -225,7 +225,7 @@ namespace Engine {
         void release();
         
         // a basic entity name.
-        PUBLIC std::string m_name;
+        EXPORT std::string m_name;
 
         // get an entity via id.
         static Entity* getEntityViaID(EntityID id);

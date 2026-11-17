@@ -16,8 +16,8 @@ namespace Engine::Debug {
         void movementInput(double delta);
         void mouseInput(double delta);
 
-        PUBLIC float cameraSpeed = 3.f;
-        PUBLIC float sensitivity = 0.25;
+        EXPORT float cameraSpeed = 3.f;
+        EXPORT float sensitivity = 0.25;
         Camera* cam;
     };
 }

@@ -4,7 +4,13 @@
 #include <queue>
 #include <logger.hpp>
 #include <layer.hpp>
-#include <field_reflect.hpp>
+
+
+// if you see any mention of a component type id, it no longer exists.
+// it used to be a uint16_t that represents a component type, 
+// which was used for the component map. However, that has since
+// been replaced 
+
 
 namespace Engine {
     
@@ -14,7 +20,6 @@ namespace Engine {
     const EntityID NULLID = -1;
 
     constexpr const char* entityDefaultName = "Unnamed Entity";
-
 
     // Entities will just exist in memory in a tree of children and parents.
     // any components can be added and removed to any of them to do whatever 
@@ -29,7 +34,7 @@ namespace Engine {
     // it is getting a valid pointer and not locking
     // anything. 
 
-    class Entity : public std::enable_shared_from_this<Entity> {
+    class Entity : public std::enable_shared_from_this<Entity>, public IEmbeddedResource {
     private:
 
         static Logging::Logger& log() {
@@ -50,7 +55,7 @@ namespace Engine {
         // parent
         std::weak_ptr<Entity> m_parent;
         // list of children
-        std::unordered_map<EntityID, std::weak_ptr<Entity>> m_children;
+        EXPORT std::vector<std::weak_ptr<Entity>> m_children;
 
         // create the entity ID pool
         // responsible for allocating and deallocating IDs
@@ -89,7 +94,7 @@ namespace Engine {
         // if disabling this entity, we should still run all the 
         // update functions for that frame and then let it be disabled on the next.
         // this might be kind of stupid. if this needs to change lmk
-        bool m_enabled = true;
+        EXPORT bool m_enabled = true;
         // mark if the "enabled" state has changed
         bool m_enabledDirty = false;
 
@@ -103,7 +108,7 @@ namespace Engine {
         void _updateEnabled();
 
         // this entity's component map. access a component via a componentTypeID.
-        std::unordered_map<ComponentTypeID, std::shared_ptr<IComponent>> m_componentMap;
+        EXPORT std::unordered_map<std::string_view, std::shared_ptr<IComponent>> m_componentMap;
 
         // this entity's component queue, for any components that have not been initialised yet.
         // this is required because if an entity is disabled, components will not run init().
@@ -138,11 +143,11 @@ namespace Engine {
         void _invalidateChildTransforms(); 
 
         // what layer is this on?
-        LayerID m_layer;
+        EXPORT LayerID m_layer;
 
         bool m_isTreeLeaf;
 
-        bool m_isRenderable = false;
+        EXPORT bool m_isRenderable = false;
 
         // update loop happens in Renderer, allow private function calling from
         // the Renderer class.
@@ -158,7 +163,7 @@ namespace Engine {
         
     public:
 
-        std::unordered_map<ComponentTypeID, std::shared_ptr<IComponent>>& getComponentMap() {
+        std::unordered_map<std::string_view, std::shared_ptr<IComponent>>& getComponentMap() {
             return m_componentMap;
         }
 
@@ -166,11 +171,11 @@ namespace Engine {
             return s_entityList;
         }
 
-        std::unordered_map<EntityID, std::weak_ptr<Entity>>& getChildren() {
+        std::vector<std::weak_ptr<Entity>>& getChildren() {
             return m_children;
         }
 
-        const bool isRenderable() { return m_isRenderable; }
+        const bool isRenderable() { return m_isRenderable; } 
 
         // get the real transform matrix taking physics interpolation into account
         fm::mat4 getRealMatrix();
@@ -182,7 +187,7 @@ namespace Engine {
         fm::mat4 m_physicsGlobalMatrixCache = fm::mat4::identity();
 
         // should we interpolate physics?
-        bool m_interpolatePhysics = true;
+        EXPORT bool m_interpolatePhysics = true;
 
         // get layer stuff
         const LayerID getLayerID() const { return m_layer; } 
@@ -202,7 +207,7 @@ namespace Engine {
 
         // this entity's transform. by itself, doesn't actually do anything.
         // only useful when utilised by things such as a rendering component.
-        Transform transform;
+        EXPORT Transform transform;
 
         ~Entity();
 
@@ -220,7 +225,7 @@ namespace Engine {
         void release();
         
         // a basic entity name.
-        std::string m_name;
+        EXPORT std::string m_name;
 
         // get an entity via id.
         static Entity* getEntityViaID(EntityID id);
@@ -244,8 +249,16 @@ namespace Engine {
         // get the index of this entity in it's parent's child vector
         size_t getIndex();
 
-        // set this entity's parent
-        void setParent(Entity* e);
+        // set this entity's parent and return this entity
+        std::shared_ptr<Entity> setParent(std::shared_ptr<Entity> parent);
+
+        // same but with a ref
+        std::shared_ptr<Entity> setParent(Entity& parent);
+
+        // add a child and return the pointer to that child
+        std::shared_ptr<Entity> addChild(std::shared_ptr<Entity> child);
+
+        Entity& addChild(Entity& child);
 
         // add a component to this entity.
         // if that entity has a constructor, pass constructor
@@ -262,13 +275,13 @@ namespace Engine {
             // std::forward will just forward the arguments to any
             // constructor present in the given component class.
             auto c = std::make_unique<T>(std::forward<Args>(targs)...);
+            c->setTypeDescriptor(&Reflection::TypeInfo<T>().descriptor);
             // assign the component's entity pointer to this.
             c->m_entity = this;
 
             // get the component type id
-            ComponentTypeID id = IComponent::getComponentTypeID<T>();
+            std::string_view id = Reflection::getFullTypenameOf<T>();
             // assign the component it's type id for easy internal lookup
-            c->m_typeID = id;
 
             // move the component to the component map
             m_componentMap[id] = std::move(c);
@@ -299,7 +312,7 @@ namespace Engine {
         std::shared_ptr<T> getComponent() {
 
             // try find a component with the type given in the component man
-            auto it = m_componentMap.find(IComponent::getComponentTypeID<T>());
+            auto it = m_componentMap.find(Reflection::getFullTypenameOf<T>());
             if (it != m_componentMap.end()) {
                 // component found
                 
@@ -317,7 +330,7 @@ namespace Engine {
         void removeComponent() {
 
             // try find the component
-            auto it = m_componentMap.find(IComponent::getComponentTypeID<T>());
+            auto it = m_componentMap.find(Reflection::getFullTypenameOf<T>());
             if (it != m_componentMap.end()) {
 
                 // component found. get a pointer to it

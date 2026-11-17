@@ -12,24 +12,23 @@ namespace Engine {
     // will assign this to the root component automatically.
     class Player : public IComponent {
         
-    component_public:
+    public:
 
         void init() override;
         void update(double delta) override;
         void lateUpdate(double delta) override;
         void physicsUpdate(double delta) override; 
         void onDestroy() override;
-        void draw() override;
         void movementInput(double delta);
         void mouseInput(double delta);
 
         Rigidbody* rb;
         Collider* collider;
-        Entity* camObject;
+        std::shared_ptr<Entity> camObject;
         Camera* cam;
-        PUBLIC float sensitivity = 0.25;
-        PUBLIC float speed = 3.0f;
-        PUBLIC bool toggleMovement;
-        PUBLIC bool toggleMouseMovement;
+        EXPORT float sensitivity = 0.25;
+        EXPORT float speed = 3.0f;
+        EXPORT bool toggleMovement;
+        EXPORT bool toggleMouseMovement;
     };
 }

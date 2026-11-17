@@ -12,7 +12,7 @@ struct aiScene;
 
 namespace Engine {
 
-    constexpr GLuint texture_defaultFiltering = GL_NEAREST;
+    constexpr GLuint texture_defaultFiltering = GL_LINEAR;
     constexpr GLuint texture_defaultFormat    = GL_RGBA;
     constexpr GLuint texture_defaultWrapping  = GL_REPEAT;
 
@@ -34,7 +34,7 @@ namespace Engine {
         fm::uvec2 m_size;
     };
 
-    class Texture2D : public ICachable<Texture2D> {
+    class Texture2D : public ICachable<Texture2D>, public IResource {
     protected:
 
         static Logging::Logger& log() {
@@ -54,45 +54,42 @@ namespace Engine {
         GLuint m_unitID;
 
         // has this texture been generated?
-        bool m_txGenerated = false;
+        EXPORT bool m_txGenerated = false;
 
         // the texture ID
         GLuint m_txID;
 
         // format, like GL_RGB
-        GLuint m_format = texture_defaultFormat;
+        EXPORT GLuint m_format = texture_defaultFormat;
 
         // internal format that determines how OpenGL handles this.
         // i.e GL_RGBA32. we hopefully won't have to change this ever,
         // but there might be an edge case that this would fix.
-        GLuint m_internalFormat = texture_defaultFormat;
+        EXPORT GLuint m_internalFormat = texture_defaultFormat;
 
         // how many channels does this image have?
-        GLuint m_channelCount;
+        EXPORT GLuint m_channelCount;
 
         // texture filtering mode
-        GLuint m_filtering = texture_defaultFiltering;
+        EXPORT GLuint m_filtering = texture_defaultFiltering;
 
         // texture wrap mode
-        GLuint m_wrapping = texture_defaultWrapping;
+        EXPORT GLuint m_wrapping = texture_defaultWrapping;
 
         // type of texture
-        GLuint m_txType = GL_TEXTURE_2D;
+        EXPORT GLuint m_txType = GL_TEXTURE_2D;
 
         // texture size in pixels
-        fm::uvec2 m_txSize;
+        EXPORT fm::uvec2 m_txSize;
 
         // determines whether this texture is mipmapped or not
-        bool m_useMipmapping = true;
+        EXPORT bool m_useMipmapping = true;
 
         // is this texture in the texture queue?
         bool m_inQueue = false;
 
         // true if this texture is invalid and should not be bound
-        bool m_invalid = false;
-
-        // just cheeky little path storage
-        std::string m_path;
+        EXPORT bool m_invalid = false;
 
         static unsigned char* _processRawBytes(bytes& in, std::shared_ptr<Texture2D> tx);
 
@@ -180,6 +177,8 @@ namespace Engine {
         }
 
         const fm::uvec2 getSize() const { return m_txSize; }
+
+        const std::string getImagePath() const { return m_resourcePath; }
 
         // set the wrapping mode 
         void setWrapping(GLuint wrapping);

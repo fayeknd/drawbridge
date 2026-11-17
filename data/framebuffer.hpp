@@ -15,7 +15,7 @@ namespace Engine {
     // the framebuffer renders a view (typically from a
     // camera) onto a render texture that can be applied 
     // to a surface.
-    class Framebuffer : public ICachable<Framebuffer> {
+    class Framebuffer : public ICachable<Framebuffer>, public IEmbeddedResource {
     protected:
 
         // the framebuffer ID pool
@@ -58,10 +58,10 @@ namespace Engine {
         }
 
         // the same as the render texture size.
-        fm::uvec2 m_size;
+        EXPORT fm::uvec2 m_size;
 
         // framebuffer format
-        GLuint m_format = GL_DEPTH24_STENCIL8;
+        EXPORT GLuint m_format = GL_DEPTH24_STENCIL8;
 
         // the primary render texture
         std::shared_ptr<Texture2D> m_pingRenderTexture;
@@ -83,10 +83,10 @@ namespace Engine {
     public:
 
         // postprocess material
-        std::shared_ptr<Material> m_postProcessMaterial = nullptr;
+        EXPORT std::shared_ptr<Material> m_postProcessMaterial = nullptr;
 
         // the postprocess steps
-        std::vector<std::shared_ptr<ShaderProgram>> m_postProcessSteps;
+        EXPORT std::vector<std::shared_ptr<ShaderProgram>> m_postProcessSteps;
 
         // apply post processing effects to this framebuffer
         void doPostProcess();

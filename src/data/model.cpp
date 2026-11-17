@@ -10,7 +10,7 @@ std::shared_ptr<Model> Model::createModelWithData(std::vector<Vertex>& vertices,
     // make sure the gl context exists first.
     if (!GLContext::get().isGLReady()) return nullptr;
     // create the new MODEL!!!
-    auto model = std::shared_ptr<Model>(new Model());
+    auto model = ResourceManager::newResource(new Model());
     // push back a new mesh, made with the passed-in data.
     model->m_meshes.push_back(Mesh::createMeshWithData(vertices, indices, topology));
     // register this model
@@ -22,7 +22,7 @@ std::shared_ptr<Model> Model::createModelWithMeshes(std::vector<std::shared_ptr<
     // make sure the gl context exists first.
     if (!GLContext::get().isGLReady()) return nullptr;
     // create the new MODEL!!! (ctrl+c/ctrl+v)
-    auto model = std::shared_ptr<Model>(new Model());
+    auto model = ResourceManager::newResource(new Model());
     // set the meshes
     model->m_meshes = meshes;
     // register this model
@@ -79,9 +79,10 @@ std::shared_ptr<Model> Model::createModelFromPath(std::filesystem::path path, st
     }
 
     // make the new model
-    auto model = std::shared_ptr<Model>(new Model);
+    auto model = ResourceManager::newResource(new Model);
     // process the submeshes
     model->_processNode(scene->mRootNode, scene, materials);
+    model->m_resourcePath = path.string();
     return model;
 }
 

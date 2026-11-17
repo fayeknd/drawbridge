@@ -27,16 +27,16 @@ namespace Engine {
 
             // force to apply on next physics tick
             fm::vec3 m_force = fm::vec3::zero();
-        component_public:
+        public:
             // whether the component should use gravity
-            PUBLIC bool m_useGravity = false;
+            EXPORT bool m_useGravity = false;
             // not implemented yet
-            PUBLIC float m_drag = 0.f;
-            PUBLIC float m_airDrag = 0.f;
+            EXPORT float m_drag = 0.f;
+            EXPORT float m_airDrag = 0.f;
             // mass of the entity
-            PUBLIC float m_mass = 1.f;
+            EXPORT float m_mass = 1.f;
 
-            PUBLIC float m_bounciness = 0.2f; // 0 = no bounce, 1 = perfectly elastic will be funny i guarentee
+            EXPORT float m_bounciness = 0.2f; // 0 = no bounce, 1 = perfectly elastic will be funny i guarentee
 
             // force modes for force application
             enum class ForceMode

@@ -139,14 +139,6 @@ void MainComponent::update(double delta) {
     }
 }
 
-void MainComponent::draw() {
-    static DebugLine line;
-    line.draw({
-        Point({ray_start}),
-        Point({ray_end})
-    });
-}
-
 void MainComponent::lateUpdate(double delta) {
 
 }

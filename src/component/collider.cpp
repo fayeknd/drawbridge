@@ -11,32 +11,28 @@ using namespace Engine::Debug;
 // :sob:                            - hunter
 
 // Constructs a new box collider
-Collider::Collider(const fm::vec3& min, const fm::vec3& max)
-{
+Collider::Collider(const fm::vec3& min, const fm::vec3& max) {
     m_shape = ColliderShape::Box;
     this->m_min = min;
     this->m_max = max;
 }
 
 // Constructs a new sphere collider
-Collider::Collider(const fm::vec3& center, const float& radius)
-{
+Collider::Collider(const fm::vec3& center, const float& radius) {
     m_shape = ColliderShape::Sphere;
     this->m_center = center;
     this->m_radius = radius;
 }
 
 // Constructs a new capsule or cylinder collider
-Collider::Collider(ColliderShape shape, const float& radius, const float& height)
-{
+Collider::Collider(ColliderShape shape, const float& radius, const float& height) {
     m_shape = shape;
     this->m_height = height;
     this->m_radius = radius;
 }
 
 // Constructs a new collider from a shape
-Collider::Collider(ColliderShape shape)
-{
+Collider::Collider(ColliderShape shape) {
     this->m_shape = shape;
 }
 

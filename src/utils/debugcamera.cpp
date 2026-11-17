@@ -33,10 +33,6 @@ void DebugCam::onDestroy() {
     
 }
 
-void DebugCam::draw() {
-    
-}
-
 void DebugCam::movementInput(double delta) {
 
     //WASD Movement

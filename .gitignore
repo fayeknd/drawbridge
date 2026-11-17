@@ -5,3 +5,4 @@ CMakePresets.json
 .vscode
 _deps
 CMakeFiles/*
+data/generated/generated_reflection.hpp

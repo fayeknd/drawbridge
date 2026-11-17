@@ -14,8 +14,11 @@ namespace Engine {
 
     using ModelID = uint16_t;
 
-    class Model : public ICachable<Model> {
+    class Model : public ICachable<Model>, public IResource {
     private:
+
+        // resources need at least one public field
+        EXPORT bool _;
 
         void _drawImpl(const std::vector<std::shared_ptr<Material>>& materials, fm::mat4 model, fm::mat4 vp);
 
@@ -28,7 +31,6 @@ namespace Engine {
         }
 
     public:
-
         
         std::vector<std::shared_ptr<Mesh>> m_meshes;
 

@@ -52,7 +52,7 @@ void Material::setEmissionTx(std::shared_ptr<Texture2D> tx) {
 
 std::shared_ptr<Material> Material::create() {
     // create the material
-    auto material = std::shared_ptr<Material>(new Material);
+    auto material = ResourceManager::newResource(new Material());
     // use the default lit shader
     material->m_program = ShaderProgram::getShaderViaKey(shader_litShader);
     // return our new material

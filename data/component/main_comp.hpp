@@ -9,19 +9,18 @@ namespace Engine {
     // will assign this to the root component automatically.
     class MainComponent : public IComponent {
         
-    component_public:
+    public:
 
         void init() override;
         void update(double delta) override;
         void lateUpdate(double delta) override;
         void physicsUpdate(double delta) override; 
         void onDestroy() override;
-        void draw() override;
 
         Entity* square;
         Entity* cam;
-        PUBLIC float sensitivity = 0.25;
-        PUBLIC float speed = 3.0f;
+        EXPORT float sensitivity = 0.25;
+        EXPORT float speed = 3.0f;
 
     };
 }

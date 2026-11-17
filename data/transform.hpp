@@ -1,5 +1,6 @@
 #pragma once
 #include <fm/fmath.hpp>
+#include <resources.hpp>
 
 namespace Engine {
     
@@ -23,7 +24,7 @@ namespace Engine {
     // optimisation to make. 
     // read more about this below
 
-    class Transform {
+    class Transform : public IResource {
     protected:
 
         // marks if this transform has changed this frame
@@ -37,13 +38,13 @@ namespace Engine {
         // our actual 3d spatial transforms
 
         // position, initialised to (0,0,0).
-        fm::vec3 m_position          = {0};
+        EXPORT fm::vec3 m_position          = {0};
 
         // rotation, initialised to (0,0,0).
-        fm::vec3 m_rotation          = {0};
+        EXPORT fm::vec3 m_rotation          = {0};
 
         // scale,    initialised to (1,1,1).
-        fm::vec3 m_scale             = {1};
+        EXPORT fm::vec3 m_scale             = {1};
 
         // skew,     initialised to (0,0,0).
         // as i'm sure you probably haven't used
@@ -52,23 +53,23 @@ namespace Engine {
         // no need, but it's implemented in
         // fmath, so may as well take advantage of it.
         // kinda cool can be used.
-        fm::vec3 m_skew              = {0};
+        EXPORT fm::vec3 m_skew              = {0};
 
         // global ones too
-        fm::vec3 m_globalPosition    = {0};
-        fm::vec3 m_globalRotation    = {0};
-        fm::vec3 m_globalScale       = {0};
-        fm::vec3 m_globalSkew        = {0};
+        EXPORT fm::vec3 m_globalPosition    = {0};
+        EXPORT fm::vec3 m_globalRotation    = {0};
+        EXPORT fm::vec3 m_globalScale       = {0};
+        EXPORT fm::vec3 m_globalSkew        = {0};
 
         // the local directions 
-        fm::vec3 m_up                = fm::vec3::yAxis();
-        fm::vec3 m_right             = fm::vec3::xAxis();
-        fm::vec3 m_front             = fm::vec3::zAxis();
+        EXPORT  fm::vec3 m_up                = fm::vec3::yAxis();
+        EXPORT  fm::vec3 m_right             = fm::vec3::xAxis();
+        EXPORT  fm::vec3 m_front             = fm::vec3::zAxis();
 
         // the global directions
-        fm::vec3 m_globalUp          = fm::vec3::yAxis();
-        fm::vec3 m_globalRight       = fm::vec3::xAxis();
-        fm::vec3 m_globalFront       = fm::vec3::zAxis();
+        EXPORT fm::vec3 m_globalUp          = fm::vec3::yAxis();
+        EXPORT fm::vec3 m_globalRight       = fm::vec3::xAxis();
+        EXPORT fm::vec3 m_globalFront       = fm::vec3::zAxis();
         
         // the transform matrix itself.
         fm::mat4 m_modelMat;
@@ -122,7 +123,7 @@ namespace Engine {
     public:
 
         // mark this transform locked
-        bool m_lockTransform = false;
+        EXPORT bool m_lockTransform = false;
 
         // return how far this transform is from the camera.
         // this is not very accurate for transparency,

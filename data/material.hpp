@@ -1,6 +1,7 @@
 #pragma once 
 #include <texture.hpp>
 #include <shader.hpp>
+#include <resources.hpp>
 
 namespace Engine {
     
@@ -22,29 +23,30 @@ namespace Engine {
     constexpr const char* materialUniform_emissionTx    = "u_emission_tx";
 
     // the physically-based rendering data.
-    struct PBRData {
-        fm::vec4 m_albedoFac                            = {1.0f, 1.0f, 1.0f, 1.0f};
-        fm::vec4 m_emissionFac                          = {0.0f, 0.0f, 0.0f, 0.0f};
-        float m_roughnessFac                            = 0.5f;
-        float m_metallicFac                             = 0.0f;
-        float m_ambientFac                              = 1.0f;
+    class PBRData : public IEmbeddedResource {
+    public:
+        EXPORT fm::vec4 m_albedoFac                            = {1.0f, 1.0f, 1.0f, 1.0f};
+        EXPORT fm::vec4 m_emissionFac                          = {0.0f, 0.0f, 0.0f, 0.0f};
+        EXPORT float m_roughnessFac                            = 0.5f;
+        EXPORT float m_metallicFac                             = 0.0f;
+        EXPORT float m_ambientFac                              = 1.0f;
         
-        bool m_hasAlbedoTx                              = false;
-        bool m_hasNormalTx                              = false;
-        bool m_hasMetallicTx                            = false;
-        bool m_hasEmissionTx                            = false;
+        EXPORT bool m_hasAlbedoTx                              = false;
+        EXPORT bool m_hasNormalTx                              = false;
+        EXPORT bool m_hasMetallicTx                            = false;
+        EXPORT bool m_hasEmissionTx                            = false;
 
-        bool m_hasTransparency                          = false;
+        EXPORT bool m_hasTransparency                          = false;
     };
 
-    class Material : public ICachable<Material> {
+    class Material : public ICachable<Material>, public IResource {
     protected:
 
         // texture pointers
-        std::shared_ptr<Texture2D> m_albedoTx = nullptr;
-        std::shared_ptr<Texture2D> m_normalTx = nullptr;
-        std::shared_ptr<Texture2D> m_metallicTx = nullptr;
-        std::shared_ptr<Texture2D> m_emissionTx = nullptr;
+        EXPORT std::shared_ptr<Texture2D> m_albedoTx = nullptr;
+        EXPORT std::shared_ptr<Texture2D> m_normalTx = nullptr;
+        EXPORT std::shared_ptr<Texture2D> m_metallicTx = nullptr;
+        EXPORT std::shared_ptr<Texture2D> m_emissionTx = nullptr;
 
 
     public:
@@ -65,14 +67,10 @@ namespace Engine {
         void setEmissionTx(std::shared_ptr<Texture2D> tx);
 
         // PBR data that stores PBR values.
-        // is exactly 48 bytes. (or should be.)
-        // uhh if you wanna add any thing to this,
-        // DON'T!! lmk and i'll do it cause
-        // ssbo's are fragile 
-        PBRData m_data;
+        EXPORT PBRData m_data;
         
         // the shader program
-        std::shared_ptr<ShaderProgram> m_program;
+        EXPORT std::shared_ptr<ShaderProgram> m_program;
 
         // use this material for drawing.
         // (bind the textures.)

@@ -400,9 +400,12 @@ void DebugUI::_drawProperties(std::weak_ptr<Entity> e) {
     }
     for (auto& component : entityPtr->getComponentMap()) {
         
-        std::string type_name = std::string(component.second->getTypename());
-        if (ImGui::CollapsingHeader(type_name.c_str())) {
+        if (ImGui::CollapsingHeader(std::string(component.second->getTypename()).c_str())) {
             
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip(std::string(component.first).c_str());
+            }
+
             const auto& fieldPairs = component.second->getFields();
             
             #define IMHANDLE(T) std::string(field.m_fieldName).c_str(), static_cast<T*>(fieldPtr)
@@ -453,7 +456,7 @@ void DebugUI::_drawTreeRow(std::weak_ptr<Entity> e) {
 
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_AllowOverlap;
     
-    // An item is a leaf if it has no children sub-objects attached
+    // an item is a leaf if it has no children sub-objects attached
     bool isLeaf = (entityPtr->getChildCount() > 0) ? false : true;
     if (isLeaf) {
         flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
@@ -488,7 +491,7 @@ void DebugUI::_drawTreeRow(std::weak_ptr<Entity> e) {
     // Recurse straight down into the engine's sub-structures
     if (!isLeaf && isOpen) {
         for (auto& child : entityPtr->getChildren()) {
-            _drawTreeRow(child.second);
+            _drawTreeRow(child);
         }
         ImGui::TreePop();
     }

@@ -1,7 +1,7 @@
 #include <entity.hpp>
 #include <algorithm>
 #include <physics/physics.hpp>
-
+#include <component/modeldraw.hpp>
 
 using namespace Engine;
 
@@ -11,8 +11,9 @@ std::shared_ptr<Entity> Entity::s_root = Entity::create("Root");
 std::shared_ptr<Entity> Entity::create(std::string name) {
     // actually create it
     // i have been experimenting with std::move because i haven't really used it yet
-    if (auto newEntity = std::shared_ptr<Entity>(new Entity(std::move(name)))) {
+    if (auto newEntity = ResourceManager::newResource(new Entity())) {
         // creation succeeded, initialise
+        newEntity->m_name = name;
         newEntity->_init();
         return newEntity;
     }
@@ -47,7 +48,7 @@ void Entity::_init() {
     // add this entity to the entity list
     s_entityList.emplace(m_id, shared_from_this());
     // parent this to the root node.
-    setParent(s_root.get());
+    setParent(s_root);
     // assign the transform entity reference
     transform.m_entity = this;
     if (this != s_root.get()) m_layer = LayerRegistry::get().getLayerViaName(layer_defaultLayer)->m_layerID;
@@ -61,7 +62,27 @@ Entity::~Entity() {
 // remove this instance from the parent's children vector
 void Entity::_removeSelfFromParentChildren() {
     if (!getParent()) return;
-    getParent()->getChildren().erase(m_id);
+
+    // i love auto
+    
+    // get child vector
+    auto& vector = getParent()->getChildren();
+    auto _this = weak_from_this(); 
+    // weak ptr does not have an operator== so std::find doesnt work because of course it doesn't
+    auto it = std::find_if(vector.begin(), vector.end(), [&_this](const std::weak_ptr<Entity>& wp) {
+        return !wp.owner_before(_this) && !_this.owner_before(wp);
+    });
+
+    // did we find the entity?
+    if (it != vector.end()) {
+        // yes, move it to the back and pop back.
+        // we do it this way because the vector
+        // might be quite big and we want to avoid
+        // reordering a large vector when we don't need to
+        *it = std::move(vector.back());
+        vector.pop_back();
+    }
+
 }
 
 EntityID Entity::getID() {
@@ -105,7 +126,7 @@ void Entity::_releaseImpl() {
 
         // if child is not null (also get the child)
         // (really just a "just in case" check)
-        if (auto sharedChild = child.second.lock()) {
+        if (auto sharedChild = child.lock()) {
 
             // delete the child too.
             // we don't need to remove it 
@@ -178,9 +199,9 @@ Entity* Entity::getChildByName(std::string name) {
     // loop through all children with a basic index loop
     for (const auto& child : getChildren()) {
         // skip over any expired children
-        if (child.second.expired()) continue;
+        if (child.expired()) continue;
         // shared ref to child
-        auto shared = child.second.lock();
+        auto shared = child.lock();
         if (shared->m_name == name) return shared.get();
     }
     // no child was found.
@@ -218,17 +239,19 @@ void Entity::setLayer(Layer* layer,     bool cascade) {
 }
 
 // set this entity's parent
-void Entity::setParent(Entity* e) {
+std::shared_ptr<Entity> Entity::setParent(std::shared_ptr<Entity> parent) {
+
+    auto _this = shared_from_this();
     // if we are trying to set the parent to itself,
     // then uh dont do that
-    if (e == this) return;
+    if (parent == _this) return _this;
 
     // remove this entity from the parent's children vector 
     // (if this entity has a parent)
     _removeSelfFromParentChildren();
 
     // add this entity to the new parent's children vector
-    e->getChildren().emplace(this->m_id, weak_from_this());
+    parent->getChildren().push_back(weak_from_this());
 
     // m_parent is a weak_ptr, e is a raw ptr.
     // get the shared_ptr from the entity list.
@@ -242,9 +265,33 @@ void Entity::setParent(Entity* e) {
     // deleted at the end of scope.
     // it shouldn't, but for some reason it does.
     // idk why.
-    m_parent = s_entityList[e->m_id];
+    m_parent = s_entityList[parent->m_id];
     _invalidateChildTransforms();
+
+    return _this;
 }
+
+std::shared_ptr<Entity> Entity::setParent(Entity& parent) {
+    
+    // set parent using ref instead
+    std::shared_ptr ptr = std::shared_ptr<Entity>(&parent);
+    setParent(ptr);
+    return shared_from_this();
+}
+
+// add a child and return the pointer to that child
+std::shared_ptr<Entity> Entity::addChild(std::shared_ptr<Entity> child) {
+    return child->setParent(shared_from_this());
+}
+
+Entity& Entity::addChild(Entity& child) {
+    
+    // add child using ref instead
+    std::shared_ptr ptr = std::shared_ptr<Entity>(&child);
+    addChild(ptr);
+    return child;
+}
+
 
 // call every update function on all components
 void Entity::_updateComponents(double delta) {
@@ -356,7 +403,10 @@ void Entity::_drawComponents() {
     // this sends the render commands to the renderer's
     // bucket array.
     for (const auto& component : m_componentMap) {
-        component.second->drawImpl(layer);
+        auto _comp = component.second;
+        // if th8is
+        auto comp = _comp->canDraw() ? std::static_pointer_cast<ModelDraw>(_comp) : nullptr;
+        if (comp) comp->drawImpl(layer);
     }
     _updateEnabled();
 }

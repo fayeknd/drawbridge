@@ -1,7 +1,7 @@
 #include <cachable.hpp>
 #include <gl_context.hpp>
 #include <renderer.hpp>
-
+#include <generated/generated_reflection.hpp> // required for initialising reflection data
 #include <GLFW/glfw3native.h>
 #include <resources.hpp>
 #include <shader.hpp>
@@ -207,7 +207,7 @@ double Renderer::getAspectRatio() {
 // share: i don't really know what this does, it just gets passed through to glfwCreateRenderer.
 // extra_Renderer_hints: a lambda function to add your own Renderer hints in. create a function that
 // has GLFWwindowHint() functions and pass that function through as a parameter. not required.
-int Renderer::createWnd(fm::uvec2 size, std::string title, FullscreenMode fsMode, GLFWmonitor *monitor, GLFWwindow *share, void(*extra_Renderer_hints)()) {
+int Renderer::create(fm::uvec2 size, std::string title, FullscreenMode fsMode, GLFWmonitor *monitor, GLFWwindow *share, void(*extra_Renderer_hints)()) {
 
     // if opengl is ready for use, the Renderer has already been created. return early.
     if (GLContext::get().isGLReady()) return ERR_CONTEXT_EXISTS;
@@ -219,6 +219,10 @@ int Renderer::createWnd(fm::uvec2 size, std::string title, FullscreenMode fsMode
     // if for whatever reason the m_wnd has already been assigned, return early. 
     if (m_wnd) return ERR_WINDOW_CREATION_FAILED;
 
+    // ok, we can begin actually setting up the engine now.
+    // this has to run before anything else. immediately.
+    Engine::Reflection::initialiseReflectionData();
+    
     // create the default layer.
     LayerID layer = Layer::create(layer_defaultLayer, 0);
 
@@ -449,7 +453,7 @@ void Renderer::cleanup() {
     Logging::Logger::closeLog();
 }
 
-void Renderer::queueRenderCommand(uint8_t layer, uint64_t sortKey, IComponent* component, void(*draw_callback)(IComponent*)) {
+void Renderer::queueRenderCommand(uint8_t layer, uint64_t sortKey, ModelDraw* component, void(*draw_callback)(ModelDraw*)) {
     m_commandBuckets[layer].push_back({sortKey, component, draw_callback});
     m_bucketHasData[layer] = true;
 }

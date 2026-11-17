@@ -15,14 +15,16 @@ namespace Engine
     using Engine::LayerMask;
 
     // The shape of the collider
-    enum class ColliderShape
-    {
-        Box, Sphere, Cylinder, Capsule
+    enum class ColliderShape {
+        Box         = 0x00,
+        Sphere      = 0x01,
+        Cylinder    = 0x02,
+        Capsule     = 0x03,
     };
 
     class Collider : public ModelDraw
     {
-        component_public:
+        public:
             // contact point, stores the normal to where it was penetrated and how deep it penetrated
             struct Contact
             {
@@ -68,21 +70,21 @@ namespace Engine
             bool m_isStatic = true;
         public:
 
-            PUBLIC fm::vec4 m_drawCol = fm::vec4(0.0f, 0.75f, 1.0f, 1.0f);
+            EXPORT fm::vec4 m_drawCol = fm::vec4(0.0f, 0.75f, 1.0f, 1.0f);
 
-            PUBLIC ColliderShape m_shape;
+            EXPORT ColliderShape m_shape;
             Rigidbody* m_rb = nullptr;
 
-            PUBLIC fm::vec3 m_offset = fm::vec3::zero();
-            PUBLIC fm::vec3 m_center = fm::vec3::zero();
-            PUBLIC float m_radius = 1.0f;
+            EXPORT fm::vec3 m_offset = fm::vec3::zero();
+            EXPORT fm::vec3 m_center = fm::vec3::zero();
+            EXPORT float m_radius = 1.0f;
 
             // height for a capsule and cylinder
-            PUBLIC float m_height = 2.f;
+            EXPORT float m_height = 2.f;
 
             // the min and max bounds of a box
-            PUBLIC fm::vec3 m_min = -fm::vec3::one() * 0.5f;
-            PUBLIC fm::vec3 m_max = fm::vec3::one() * 0.5f;
+            EXPORT fm::vec3 m_min = -fm::vec3::one() * 0.5f;
+            EXPORT fm::vec3 m_max = fm::vec3::one() * 0.5f;
             // convert local bounds to world
             fm::vec3 getWorldCenter();
             float getWorldRadius();
@@ -93,6 +95,7 @@ namespace Engine
             Collider(const fm::vec3& center, const float& radius);
             Collider(ColliderShape shape, const float& radius, const float& height);
             Collider(ColliderShape shape);
+            Collider() { m_shape = ColliderShape::Box; }
 
             // Collider collision checks
             bool IsCollidingWith(Collider& collider, Contact& out);

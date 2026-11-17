@@ -7,12 +7,9 @@
 #include <logger.hpp>
 #include <layer.hpp>
 #include <material.hpp>
-#include <field_reflect.hpp>
+#include <reflectable.hpp>
 
 namespace Engine {
-
-    // forward declaration
-    static inline void initializeReflectionData();
 
     // forward declaration to prevent
     // circular dependency issues.
@@ -20,8 +17,6 @@ namespace Engine {
     // remember to include <entity.hpp>
     class Entity;
 
-    // just to make it clearer what a function is working with
-    using ComponentTypeID = uint16_t;
 
     // Component interface / abstract class.
     // Components are assigned to entities
@@ -31,35 +26,21 @@ namespace Engine {
     // assigned via a static template function.
     // More on that below
 
-    class IComponent {
-    public:
-        friend void Engine::initializeReflectionData();
+    class IComponent : public IEmbeddedResource {
     private:
+
+        virtual const bool canDrawImpl() const { return false; }
 
         static Logging::Logger& log() {
             static Logging::Logger instance("COMPONENT");
             return instance;
         }
 
-        // makes it easier to aquire the typeid for each
-        // component instance. (this is assigned when adding
-        // a component to an entity, and not handled by the
-        // component itself.)
-        ComponentTypeID m_typeID;
-        
-        // a pointer to the entity this component is a part of.
+        // a ptr to this component's entity
         Entity* m_entity;
-
-        // get the next available ID for a component type.
-        // this is not an IDPool because component types do
-        // not get discarded at runtime.
-        static ComponentTypeID _nextID();
 
         // has this component's init() been run?
         bool m_hasInit;
-
-        // tell the instance to run draw(). 
-        static inline void _distributeDraw(IComponent* instance) { instance->draw(); }
 
     protected:
 
@@ -70,55 +51,15 @@ namespace Engine {
 
         // init() is called when the component is added to an entity, once.
         virtual void init() {};
-        // final stage in the game loop. used for anything to do with drawing.
-        virtual void draw() {};
-
+        
         // actual physics update function
         virtual void physicsUpdate(double delta) {};
 
     public:
 
-        virtual std::vector<std::pair<ReflectableField, void*>> getFields() = 0;
-        virtual std::string_view getTypename() const = 0;
-
-        using ReflectionQueryFunc = const std::vector<ReflectableField>& (*)();
-        
-        // get the typeid. this is unique for each component type.
-        // the way this works: if this is called on a component
-        // with the type of "PlayerComponent", it will create and
-        // return a brand new ID on the first call, and return the same
-        // on following calls. this means every type of component
-        // gets a unique but consistent ID.
-
-        // The reason this works is because the function is a template
-        // which is like a blueprint class and is not actually static
-        // for the whole "IComponent" class and each derivative of
-        // IComponent  will have it's own version of this template.
-        // this is kind of confusing i understand, i just about 
-        // understand it enough to take advantage of it but explaining it
-        // is kinda hard.
-
-        // make sure this is a template 
-        template <typename T>
-        static ComponentTypeID getComponentID() {
-            // create the static typeid. never gets created again.
-            static const ComponentTypeID id = _nextID();
-            return id;
-        }
-
-        // material(s) to use
-        // this was moved here so we don't have to dyanmic
-        // cast to an ModelDraw when sending render data.
-        // if the material is null, no render data.
-        // else, we can determine if the material is transparent,
-        // and use the appropriate depth function.
-        std::vector<std::shared_ptr<Material>> m_materials;
-        #define m_material m_materials[0]
-
-
         // marks if this instance should render or not 
         // (given it can even be rendered)
-        PUBLIC bool m_render = true;
+        EXPORT bool m_render = true;
 
         // returns if the init function has been run yet.
         bool hasInitRun(); 
@@ -138,25 +79,6 @@ namespace Engine {
         // makes it a bit easier to run the base initialiser
         #define baseinit IComponent::init()
         
-        // get this instance's typeid.
-        const ComponentTypeID getTypeID() const;
-
-        // public method of getting a component type id.
-        // aquired using IComponent::getComponentTypeID<MyAwesomeComponent>();
-        template <typename T>
-        static ComponentTypeID getComponentTypeID() {
-
-            // check if type is actually a derivative of IComponent
-            if (!std::is_base_of<IComponent, T>::value) {
-                // type is not a component, return.
-                log().logError("(getComponentTypeID<T>) Provided class is not a component!");
-                return -1;
-            }
-            // return the unique ID for this class
-            return getComponentID<T>();
-
-        }
-
         // external init function. this is the externally visible
         // init function. used so each component does not have to call
         // the base init to have m_hasInit set to true, while calling
@@ -183,27 +105,27 @@ namespace Engine {
         // physics update calls an update every 50ms (same as minecraft yippee)
         void physicsUpdateImpl(double delta);
 
-        // adds draw() to the render bucket callback in renderer.hpp
-        void drawImpl(const Layer* layer);
-
         // called right before the object gets destroyed. (or dereferenced, 
         // the object won't be destroyed if there is a shared_ptr to it.
         // this function will still run in that scenario though. don't store
         // a shared_ptr to any component.)
         virtual void onDestroy() {};
 
-    
+        // does this component have the ability to draw?
+        // do not override canDrawImpl unless you know how
+        // render commands work
+        const bool canDraw() const { return canDrawImpl(); }
 
         // allow the Entity class full access to a component's functions.
         friend class Entity;
 
     };
 }
-
+/*
 // use this instead of "public:" in components
 #define component_public \
     public: \
-        friend void Engine::initializeReflectionData(); \
+        friend void Engine::initialiseReflectionData(); \
 \
     protected: \
         static inline std::string_view _reflectionName = ""; \
@@ -230,3 +152,4 @@ namespace Engine {
 
 // if you don't like how long component_public is
 #define cpublic component_public
+*/

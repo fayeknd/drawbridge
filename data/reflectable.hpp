@@ -160,15 +160,15 @@ namespace Engine {
 // cast a reflectable type without crashing on fail,
 // taking advantage of reflection.
 // this is MUCH quicker than dynamic_cast<T>.
+// dynamic_refl_cast does not support down/upcasting.
+// it will only succeed if T is the exact type of ptr.
 template <typename T>
 T dynamic_refl_cast(Engine::Reflection::IReflectable* ptr) {
     if (!ptr) return nullptr;
 
     // getFullTypenameOf<MyType*> would fail,
     // whereas getFullTypenameOf<MyType> wouldn't.
-    auto typeName = (std::is_pointer_v<T>) 
-        ? Engine::Reflection::getFullTypenameOf<std::remove_pointer_t<T>>()
-        : Engine::Reflection::getFullTypenameOf<T>();
+    auto typeName = Engine::Reflection::getFullTypenameOf<std::remove_pointer_t<T>>();
 
     if (ptr->getFullTypename() == typeName) {
         return static_cast<T>(ptr);
@@ -183,9 +183,7 @@ template <typename T>
 std::shared_ptr<T> dynamic_refl_pointer_cast(std::shared_ptr<Engine::Reflection::IReflectable> ptr) {
     if (!ptr) return nullptr;
 
-    auto typeName = (std::is_pointer_v<T>) 
-        ? Engine::Reflection::getFullTypenameOf<std::remove_pointer_t<T>>()
-        : Engine::Reflection::getFullTypenameOf<T>();
+    auto typeName = Engine::Reflection::getFullTypenameOf<std::remove_pointer_t<T>>();
 
     if (ptr->getFullTypename() == typeName) {
         return static_pointer_cast<T>(ptr);

@@ -66,7 +66,7 @@ void Entity::_removeSelfFromParentChildren() {
     // i love auto
     
     // get child vector
-    auto vector = getParent()->getChildren();
+    auto& vector = getParent()->getChildren();
     auto _this = weak_from_this(); 
     // weak ptr does not have an operator== so std::find doesnt work because of course it doesn't
     auto it = std::find_if(vector.begin(), vector.end(), [&_this](const std::weak_ptr<Entity>& wp) {

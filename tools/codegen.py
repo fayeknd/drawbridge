@@ -104,7 +104,6 @@ using namespace Engine;
             ns = get_namespaces(content, class_match.start())
 
             full_class_name = f"{ns}::{class_name}" if ns else class_name
-            full_class_names += full_class_name
 
             # create a safe function name (for example Engine_Physics_Rigidbody)
             safe_func_name = f"register_{full_class_name.replace('::', '_')}"

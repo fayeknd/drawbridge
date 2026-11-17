@@ -403,7 +403,7 @@ void DebugUI::_drawProperties(std::weak_ptr<Entity> e) {
         if (ImGui::CollapsingHeader(std::string(component.second->getTypename()).c_str())) {
             
             if (ImGui::IsItemHovered()) {
-                ImGui::SetTooltip(std::string(component.second->getFullTypename()).c_str());
+                ImGui::SetTooltip(std::string(component.first).c_str());
             }
 
             const auto& fieldPairs = component.second->getFields();
@@ -456,7 +456,7 @@ void DebugUI::_drawTreeRow(std::weak_ptr<Entity> e) {
 
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_SpanAllColumns | ImGuiTreeNodeFlags_AllowOverlap;
     
-    // An item is a leaf if it has no children sub-objects attached
+    // an item is a leaf if it has no children sub-objects attached
     bool isLeaf = (entityPtr->getChildCount() > 0) ? false : true;
     if (isLeaf) {
         flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;

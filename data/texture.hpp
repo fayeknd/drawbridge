@@ -123,7 +123,7 @@ namespace Engine {
         // texture. this time, it's just going to create a new 
         // instance. trust the programmer. maybe we want differently
         // filtered textures.
-        static std::shared_ptr<Texture2D> createTextureFromPath(std::filesystem::path path, bool flipY = true, bool mipmap = true, GLuint format = texture_defaultFormat, GLuint filtering = texture_defaultFiltering, GLuint internalFormat = texture_defaultFormat, GLuint wrapping = texture_defaultWrapping, GLuint type = GL_TEXTURE_2D);
+        static std::shared_ptr<Texture2D> createTextureFromPath(std::filesystem::path path, bool flipY = true, bool mipmap = false, GLuint format = texture_defaultFormat, GLuint filtering = texture_defaultFiltering, GLuint internalFormat = texture_defaultFormat, GLuint wrapping = texture_defaultWrapping, GLuint type = GL_TEXTURE_2D);
 
         // create a render texture
         static std::shared_ptr<Texture2D> createRenderTexture(fm::uvec2 size = fm::uvec2::zero(), GLuint filtering = texture_defaultFiltering, GLuint wrapping = texture_defaultWrapping);

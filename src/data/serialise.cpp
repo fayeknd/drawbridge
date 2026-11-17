@@ -67,6 +67,7 @@ void Engine::Serialise::serialiseField(std::string_view fieldType, const void* f
     TRY_SERIALISE_STR(std::string_view)
     TRY_SERIALISE_STR(char)
     TRY_SERIALISE_STR(unsigned char)
+    TRY_SERIALISE_STR(std::filesystem::path);
 
     if (auto contIt = containerSerialiserMap().find(std::string(fieldType)); contIt != containerSerialiserMap().end()) {
         contIt->second(fieldPtr, out, indentLevel);
@@ -80,8 +81,7 @@ void Engine::Serialise::serialiseField(std::string_view fieldType, const void* f
         // is this an embedded resource?
         // (dynamic_cast should be fine here,
         // serialisation doesn't run very often)
-        // IGNORE THAT, DYNAMIC_REFL_CAST!!!!!!!
-        if (auto obj = dynamic_refl_cast<IEmbeddedResource*>(res); !obj) {
+        if (auto obj = dynamic_cast<IEmbeddedResource*>(res); !obj) {
             if (res) {
                 std::string path = "";
                 // does this path have a resource it can choose a name from?

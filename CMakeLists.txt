@@ -149,7 +149,7 @@ file(GLOB_RECURSE ENGINE_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.c"
 )
 
-file(GLOB_RECURSE PROJECT_HEADERS CONFIGURE_DEPENDS
+file(GLOB_RECURSE ENGINE_HEADERS CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
@@ -163,6 +163,12 @@ file(GLOB_RECURSE PROJECT_HEADERS CONFIGURE_DEPENDS
 file(GLOB_RECURSE EDITOR_SOURCES CONFIGURE_DEPENDS 
     "${CMAKE_CURRENT_SOURCE_DIR}/editor/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/editor/*.hpp"
+)
+
+set(ALL_TARGETS
+    ${ENGINE_SOURCES}
+    ${ENGINE_HEADERS}
+    ${EDITOR_SOURCES}
 )
 
 set(ENGINE_TARGET_INCLUDES 
@@ -179,14 +185,15 @@ set(EDITOR_TARGET_INCLUDES
 
 set(GENERATED_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/data/generated/generated_reflection.hpp")
 
-list(REMOVE_ITEM PROJECT_HEADERS "${GENERATED_HEADER}")
+list(REMOVE_DUPLICATES ALL_TARGETS)
+list(REMOVE_ITEM ALL_TARGETS "${GENERATED_HEADER}")
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 add_custom_command(
     OUTPUT ${GENERATED_HEADER}
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/codegen.py ${GENERATED_HEADER} ${PROJECT_HEADERS}
-    DEPENDS ${PROJECT_HEADERS} ${CMAKE_CURRENT_SOURCE_DIR}/tools/codegen.py
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/codegen.py ${GENERATED_HEADER} ${ALL_TARGETS}
+    DEPENDS ${ALL_TARGETS} ${CMAKE_CURRENT_SOURCE_DIR}/tools/codegen.py
     COMMENT "Generating reflection header map..."
     VERBATIM
 )
@@ -201,7 +208,7 @@ add_compile_options(-O1 -g -fno-omit-frame-pointer)
 add_link_options(-fsanitize=address) # more detailed memory leak and segfault errors
 
 # core engine lib
-add_library(engine ${PROJECT_HEADERS} ${ENGINE_SOURCES})
+add_library(engine ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 add_dependencies(engine resources reflect_codegen)
 target_link_libraries(engine PUBLIC ${TARGET_LIBS})
 target_include_directories(engine PUBLIC ${ENGINE_TARGET_INCLUDES})

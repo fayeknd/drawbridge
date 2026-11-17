@@ -24,6 +24,7 @@ using namespace Engine;
 #include "/home/faye/projects/gamebridge/data/texture.hpp"
 #include "/home/faye/projects/gamebridge/data/transform.hpp"
 #include "/home/faye/projects/gamebridge/data/utils/debugcamera.hpp"
+#include "/home/faye/projects/gamebridge/editor/editorui/editorui.hpp"
 
 template <>
 inline void Engine::Reflection::TypeInfo<Engine::Camera>::initTypeInfo() {
@@ -1298,6 +1299,69 @@ inline void Engine::Reflection::TypeInfo<Engine::Debug::DebugCam>::initTypeInfo(
 }
 
 
+template <>
+inline void Engine::Reflection::TypeInfo<Engine::EditorUI>::initTypeInfo() {
+    descriptor = {
+        .name = "EditorUI",
+        .fullName = "Engine::EditorUI",
+        .getFields = []() -> const std::vector<Engine::ReflectableField>& {
+            static std::vector<Engine::ReflectableField> fields = []() {
+                std::vector<Engine::ReflectableField> localFields = {
+                    { "m_uiCam", offsetof(Engine::EditorUI, m_uiCam), "std::shared_ptr<Camera>" },
+                    { "m_projectDir", offsetof(Engine::EditorUI, m_projectDir), "std::filesystem::path" },
+                };
+                        {
+                            using namespace Engine;
+                using parent = IComponent;
+                            if (Engine::Reflection::TypeInfo<parent>::descriptor.getFields != nullptr) {
+                                const size_t baseOffset = Engine::Reflection::getBaseOffset<Engine::EditorUI, parent>();
+                                const auto& parentFields = Engine::Reflection::TypeInfo<parent>::descriptor.getFields();
+                                for (auto f : parentFields) {
+                                    f.m_fieldOffset += baseOffset;
+                                    localFields.insert(localFields.begin(), f);
+                                }
+                            }
+                        }
+                return localFields;
+            }();
+            return fields;
+        },
+        .getFieldsForInstance = [](void* basePtr) -> std::vector<std::pair<Engine::ReflectableField, void*>> {
+            if constexpr (std::is_base_of_v<Engine::Reflection::IReflectable, Engine::EditorUI>) {
+                auto* typed = static_cast<Engine::EditorUI*>(static_cast<Engine::Reflection::IReflectable*>(basePtr));
+                return Engine::Reflection::getObjectFields(typed);
+            } else {
+                auto* typed = static_cast<Engine::EditorUI*>(basePtr);
+                return Engine::Reflection::getObjectFields(typed);
+            }
+        },
+        .createInstance = []() -> std::shared_ptr<void> {
+            if constexpr (std::is_default_constructible_v<Engine::EditorUI>) {
+                std::shared_ptr<Engine::EditorUI> obj = std::shared_ptr<Engine::EditorUI>(new Engine::EditorUI());
+                if constexpr (std::is_base_of_v<Engine::Reflection::IReflectable, Engine::EditorUI>) {
+                    obj->setTypeDescriptor(&Engine::Reflection::TypeInfo<Engine::EditorUI>::descriptor);
+                }
+                return obj;
+            } else {
+                return nullptr;
+            }
+        }
+    };
+
+    Engine::Reflection::getTypeRegistry()["Engine::EditorUI"] = &descriptor;
+    Engine::Reflection::getTypeRegistry()["EditorUI"] = &descriptor;
+
+    if constexpr (std::is_base_of_v<Engine::IResource, Engine::EditorUI>) {
+        Engine::Serialise::registerUniquePtrType<Engine::EditorUI>("std::unique_ptr<EditorUI>");
+        Engine::Serialise::registerUniquePtrType<Engine::EditorUI>("std::unique_ptr<Engine::EditorUI>");
+        Engine::Serialise::registerSharedPtrType<Engine::EditorUI>("std::shared_ptr<EditorUI>");
+        Engine::Serialise::registerSharedPtrType<Engine::EditorUI>("std::shared_ptr<Engine::EditorUI>");
+        Engine::Serialise::registerWeakPtrType<Engine::EditorUI>("std::weak_ptr<EditorUI>");
+        Engine::Serialise::registerWeakPtrType<Engine::EditorUI>("std::weak_ptr<Engine::EditorUI>");
+    }
+}
+
+
 inline void Engine::Reflection::initialiseReflectionData() { 
     reflectLogger().logInfo("Initialising reflection data...");
     Engine::Serialise::registerVectorType<GLuint>("std::vector<GLuint>", "GLuint");
@@ -1323,6 +1387,8 @@ inline void Engine::Reflection::initialiseReflectionData() {
     Engine::Reflection::TypeInfo<Engine::Texture2D>::initTypeInfo();
     Engine::Reflection::TypeInfo<Engine::Transform>::initTypeInfo();
     Engine::Reflection::TypeInfo<Engine::Debug::DebugCam>::initTypeInfo();
+    Engine::Reflection::TypeInfo<Engine::EditorUI>::initTypeInfo();
 }
 
+namespace std {}
 #pragma GCC diagnostic pop

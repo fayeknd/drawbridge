@@ -40,7 +40,7 @@ void DebugUI::_createImGuiContext(GLFWwindow* wnd) {
     m_font = m_io->Fonts->AddFontFromMemoryTTF(
         font.data(),       
         font.size(),
-        16.0f,
+        20.0f,
         &m_font_cfg
     );
     IM_ASSERT(m_font != NULL);

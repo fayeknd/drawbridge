@@ -79,6 +79,10 @@ namespace Engine {
 
                 std::cout << logStr;
 
+                if (copyLog) {
+                    copyLog(logStr);
+                }
+
                 if (s_outFile.is_open()) {
                     s_outFile << logStr;
                 }
@@ -93,6 +97,7 @@ namespace Engine {
             template <typename... Args>
             void logInfo(std::string str, Args&& ... args) { log(LogSeverity::Info, str, args...); }
 
+            static inline void(*copyLog)(std::string log) = nullptr;
         };
     }
 }

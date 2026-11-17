@@ -13,9 +13,12 @@ namespace Engine {
         // shortcut to the imgui IO
         ImGuiIO* m_io;
 
+        static inline std::vector<std::string> logLines;
+
         void init() override;
         void lateUpdate(double delta) override;
         void drawViewport(ImGuiWindowFlags flags);
+        void drawConsole(ImGuiWindowFlags flags);
         void drawUI();
 
     private:

@@ -4,12 +4,16 @@
 #include <component/modeldraw.hpp>
 #include <renderer.hpp>
 #include <imgui/imgui_internal.h>
+#include <utils/logger.hpp>
 #include <debug.hpp>
 
 using namespace Engine;
 
-void EditorUI::init() {
+void consoleLog(std::string log) {
+    EditorUI::logLines.push_back(log);
+}
 
+void EditorUI::init() {
     // make the ui cam
     m_uiCam = Entity::create("__EditorCam")->addComponent<Camera>();
     m_uiCam->m_clearCol = fm::col(0.1f, 0.1f, 0.1f, 1.0f);
@@ -30,6 +34,8 @@ void EditorUI::init() {
 
     m_uiCam->m_framebuffer->m_postProcessSteps.push_back(ShaderProgram::createProgramFromPath("stuff=>shaders/postprocess.glsl"));
     m_uiCam->m_framebuffer->setResizeWithWnd(false);
+
+    Logging::Logger::copyLog = consoleLog;
     
 }
 
@@ -56,11 +62,14 @@ void EditorUI::lateUpdate(double delta) {
 
         ImGuiID dockIDMain = dockerID;
         ImGuiID dockIDLeft;
+        ImGuiID dockIDBottom;
 
         ImGui::DockBuilderSplitNode(dockIDMain, ImGuiDir_Left, 0.2f, &dockIDLeft, &dockIDMain);
+        ImGui::DockBuilderSplitNode(dockIDMain, ImGuiDir_Down, 0.2f, &dockIDBottom, &dockIDMain);
 
         // bind our specific window titles to these localized layout slots
         ImGui::DockBuilderDockWindow("WorldViewport", dockIDMain);
+        ImGui::DockBuilderDockWindow("Console", dockIDBottom);
         ImGui::DockBuilderDockWindow("Tools", dockIDLeft);
 
         ImGui::DockBuilderFinish(dockerID);
@@ -69,6 +78,7 @@ void EditorUI::lateUpdate(double delta) {
     if (ImGui::DockSpaceOverViewport(dockerID, viewport)) {
 
         drawViewport(flags); // "Viewport"
+        drawConsole(flags);
         Debug::DebugUI::get().drawPropertyEditor(); // "Tools"
 
     }
@@ -109,4 +119,59 @@ void EditorUI::drawViewport(ImGuiWindowFlags flags) {
     ImGui::End();
     ImGui::PopStyleVar();
 
+}
+
+void EditorUI::drawConsole(ImGuiWindowFlags flags)
+{
+    static bool autoScroll = true;
+    if (ImGui::Begin("Console"), NULL, ImGuiWindowFlags_NoCollapse) {
+
+        ImGui::Checkbox("AutoScroll", &autoScroll);
+        ImGui::BeginChild("Scroll");
+
+        // get the window viewport available size
+        ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+
+        // guard against collapsed windows
+        if (viewportPanelSize.x > 0.0f && viewportPanelSize.y > 0.0f) {
+            fm::uvec2 targetSize = {
+                static_cast<uint32_t>(viewportPanelSize.x),
+                static_cast<uint32_t>(viewportPanelSize.y)
+            };
+
+            if(ImGui::BeginTable("ImGuiTable", 1, ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollY)) {
+
+                ImGui::PushStyleColor(ImGuiCol_TableRowBg,    ImVec4(0.25f, 0.25f, 0.25f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_TableRowBgAlt, ImVec4(0.20f, 0.20f, 0.20f, 1.0f));
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.8f, 0.8f, 0.8f, 1.f));
+
+                ImGuiListClipper listClipper;
+                listClipper.Begin(logLines.size());
+
+                while(listClipper.Step())
+                {
+                    for (int i = listClipper.DisplayStart; i < listClipper.DisplayEnd; i++) {
+                        ImGui::TableNextRow();
+                        ImGui::TableNextColumn();
+                        ImGui::Text(logLines[i].c_str());
+                        
+                    }
+                }
+                listClipper.End();
+
+                if (autoScroll) {
+                    ImGui::SetScrollHereY(0.0f);
+                }
+
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::PopStyleColor();
+                ImGui::EndTable();
+            }
+                
+        }
+
+        ImGui::EndChild();
+    }
+    ImGui::End();
 }

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.24) 
 project(drawbridge VERSION 0.1.0 LANGUAGES C CXX)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 20)
 
 if (WIN32)
@@ -205,10 +206,13 @@ set(TARGET_LIBS glfw zip assimp)
 
 #add_compile_options(-O1 -g -fsanitize=address -fno-omit-frame-pointer)
 add_compile_options(-O1 -g -fno-omit-frame-pointer)
-add_link_options(-fsanitize=address) # more detailed memory leak and segfault errors
+
+if (LINUX)
+    add_link_options(-fsanitize=address) # more detailed memory leak and segfault errors
+endif()
 
 # core engine lib
-add_library(engine ${ENGINE_HEADERS} ${ENGINE_SOURCES})
+add_library(engine SHARED ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 add_dependencies(engine resources reflect_codegen)
 target_link_libraries(engine PUBLIC ${TARGET_LIBS})
 target_include_directories(engine PUBLIC ${ENGINE_TARGET_INCLUDES})
@@ -218,6 +222,21 @@ add_executable(editor ${EDITOR_SOURCES})
 target_link_libraries(editor PRIVATE engine)
 target_include_directories(editor PUBLIC ${EDITOR_TARGET_INCLUDES})
 
+add_custom_command(TARGET editor POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/data"
+        "${CMAKE_CURRENT_BINARY_DIR}/engine/headers"
+    COMMENT "Copying headers to editor build dir..."
+    VERBATIM
+)
+add_custom_command(TARGET editor POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_CURRENT_SOURCE_DIR}/tools"
+        "${CMAKE_CURRENT_BINARY_DIR}/engine/tools"
+    COMMENT "Copying buildtools to editor build dir..."
+    VERBATIM
+)
+
 
 include(CTest)
 enable_testing()
@@ -225,10 +244,3 @@ enable_testing()
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
-
-# game binary
-add_executable(game game/game.cpp)
-target_link_libraries(game PRIVATE engine)
-
-# the editor launches the game, so build it alongside
-add_dependencies(editor game)

@@ -18,7 +18,7 @@ namespace Engine {
     constexpr const char* resource_defaultProjectDir = "project/";
     constexpr const char* resource_defaultFileExt    = ".meta";
 
-    #define proj_ std::string(resource_defaultProjectDir) + 
+    #define proj_ std::string(resource_defaultProjectDir + std::string("resources/")) + 
 
     // the resource interface. 
     class IResource : public Reflection::IReflectable {
@@ -230,7 +230,7 @@ namespace Engine {
                     if (auto it = path.find_last_of(resource_archiveSeparator); it != std::string::npos) {
                         path = path.substr(it + 1);
                     }
-                    filename = resource_defaultProjectDir + path + resource_defaultFileExt;
+                    filename = proj_(path) + resource_defaultFileExt;
                 }
                 fullPath = filename;
             }

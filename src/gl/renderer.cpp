@@ -353,7 +353,7 @@ void Renderer::_framebuffer_resize_callback(GLFWwindow* wnd, int w, int h) {
 
 }
 
-#pragma region MainLoop
+#pragma region MainLoopStart
 
 // begins the program rendering and logic loop. in main(), this should come last unless you have
 // any cleanup stuff to perform after the program stops.
@@ -417,8 +417,10 @@ void Renderer::beginGameLoop() {
     // we have left the loop, so the program is attempting to close.
     cleanup();
 }
+#pragma endregion MainLoopStart
 
-#pragma endregion MainLoop
+#pragma region MainLoopEnd
+#pragma endregion MainLoopEnd
 
 void Renderer::preFramePollEvents() {
     // poll glfw events.

@@ -224,8 +224,9 @@ set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
 
-#if (COMMAND copy_dlls)
+# game binary
+add_executable(game game/game.cpp)
+target_link_libraries(game PRIVATE engine)
 
-    #copy_dlls(engine)
-
-#endif()
+# the editor launches the game, so build it alongside
+add_dependencies(editor game)

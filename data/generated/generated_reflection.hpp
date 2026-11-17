@@ -5,13 +5,13 @@
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 
 using namespace Engine;
-#include "/home/faye/projects/gamebridge/data/component/camera.hpp"
-#include "/home/faye/projects/gamebridge/data/component/collider.hpp"
-#include "/home/faye/projects/gamebridge/data/component/main_comp.hpp"
-#include "/home/faye/projects/gamebridge/data/component/modeldraw.hpp"
-#include "/home/faye/projects/gamebridge/data/component/player.hpp"
-#include "/home/faye/projects/gamebridge/data/physics/rigidbody.hpp"
-#include "/home/faye/projects/gamebridge/data/utils/debugcamera.hpp"
+#include "C:\projects\gamebridge\gamebridge\data\component\camera.hpp"
+#include "C:\projects\gamebridge\gamebridge\data\component\collider.hpp"
+#include "C:\projects\gamebridge\gamebridge\data\component\main_comp.hpp"
+#include "C:\projects\gamebridge\gamebridge\data\component\modeldraw.hpp"
+#include "C:\projects\gamebridge\gamebridge\data\component\player.hpp"
+#include "C:\projects\gamebridge\gamebridge\data\physics\rigidbody.hpp"
+#include "C:\projects\gamebridge\gamebridge\data\utils\debugcamera.hpp"
 
 void Engine::initializeReflectionData() {
     Camera::_reflectionName = "Camera";
@@ -143,6 +143,7 @@ void Engine::initializeReflectionData() {
             std::vector<ReflectableField> localFields = {
                 { "m_useGravity", offsetof(Rigidbody, m_useGravity), "bool" },
                 { "m_drag", offsetof(Rigidbody, m_drag), "float" },
+                { "m_airDrag", offsetof(Rigidbody, m_airDrag), "float" },
                 { "m_mass", offsetof(Rigidbody, m_mass), "float" },
                 { "m_bounciness", offsetof(Rigidbody, m_bounciness), "float" },
             };

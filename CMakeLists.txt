@@ -5,14 +5,12 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 20)
 
 if (WIN32)
-    message(NOTICE "Platform is WIN32.")
-    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -lwinpthread -ldwmapi")
+    message(NOTICE "Target platform is Windows")
+    add_compile_options("-lwinpthread -ldwmapi")
 elseif(LINUX)
-    message(NOTICE "Platform is LINUX.")
-    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
-else()
-    message(NOTICE "Platform is unknown. Program will not function.")
+    message(NOTICE "Target platform is Linux.")
 endif()
+
 
 # i fucking hate working with cmake shit but it's also so useful
 

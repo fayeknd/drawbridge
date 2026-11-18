@@ -3,6 +3,11 @@
 
 using namespace Engine;
 
+inline IDPool<FramebufferID>& Framebuffer::framebufferIDPool() {
+    static IDPool<FramebufferID> instance;
+    return instance;
+}
+
 void Framebuffer::_genBuffer(fm::uvec2 size) {
 
     if (m_initialised) _deleteBuffer(); // we are changing some params    

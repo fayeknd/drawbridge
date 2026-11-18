@@ -5,7 +5,24 @@
 
 using namespace Engine;
 
+// create the entity ID pool
+// responsible for allocating and deallocating IDs
+IDPool<EntityID> Entity::s_entityPool = IDPool<EntityID>();
+
+// where the entities that release() is called on are queued in.
+std::queue<EntityID> Entity::s_releaseQueue = {};
+
 std::shared_ptr<Entity> Entity::s_root = Entity::create("Root");
+
+// create the entity list (use the id as the key)
+// we DO want a shared_ptr here. if an entity somehow doesn't exist
+// in this list, it will automatically be destroyed. this ensures
+// if an entity exists, it is referenced in this unordered map.
+
+std::unordered_map<EntityID, std::shared_ptr<Entity>>& Entity::getEntityMap() {
+    static std::unordered_map<EntityID, std::shared_ptr<Entity>> map;
+    return map;
+}
 
 // creat the entity!
 std::shared_ptr<Entity> Entity::create(std::string name) {
@@ -46,7 +63,7 @@ void Entity::_init() {
     m_id = s_entityPool.getNewID();
     log().logInfo("Creating new Entity with name {} and EntityID {}.", m_name, m_id);
     // add this entity to the entity list
-    s_entityList.emplace(m_id, shared_from_this());
+    getEntityMap().emplace(m_id, shared_from_this());
     // parent this to the root node.
     setParent(s_root);
     // assign the transform entity reference
@@ -141,7 +158,7 @@ void Entity::_releaseImpl() {
     _removeSelfFromParentChildren();
 
     // remove this entity from the entity list
-    s_entityList.erase(m_id);
+    getEntityMap().erase(m_id);
     // release the entity id so it can be reused
     s_entityPool.releaseID(m_id);
     // released is now true. this is so the destructor doesn't call release again.
@@ -151,9 +168,9 @@ void Entity::_releaseImpl() {
 // get an entity via id.
 Entity* Entity::getEntityViaID(EntityID id) {
     // get entity from map using id key
-    auto iterator = s_entityList.find(id);
-    if (iterator != s_entityList.end()) {
-        return s_entityList[id].get(); // return raw ptr
+    auto iterator = getEntityMap().find(id);
+    if (iterator != getEntityMap().end()) {
+        return getEntityMap()[id].get(); // return raw ptr
     }
     // entity not found, return nullptr
     log().logError("Entity with ID {} doesn't exist!", id);
@@ -265,7 +282,7 @@ std::shared_ptr<Entity> Entity::setParent(std::shared_ptr<Entity> parent) {
     // deleted at the end of scope.
     // it shouldn't, but for some reason it does.
     // idk why.
-    m_parent = s_entityList[parent->m_id];
+    m_parent = getEntityMap()[parent->m_id];
     _invalidateChildTransforms();
 
     return _this;
@@ -332,15 +349,15 @@ void Entity::_lateUpdateComponents(double delta) {
 
 void Entity::_pollComponentBehaviours(double delta) {
     // update all the components' update() functions. 
-    for (const auto& e : Entity::s_entityList) {
+    for (const auto& e : Entity::getEntityMap()) {
         e.second->_updateComponents(delta);
     }
     // update all the lateupdate() functions.
-    for (const auto& e : Entity::s_entityList) {
+    for (const auto& e : Entity::getEntityMap()) {
         e.second->_lateUpdateComponents(delta);
     }
     // update all the draw() functions.
-    for (const auto& e : Entity::s_entityList) {
+    for (const auto& e : Entity::getEntityMap()) {
         e.second->_drawComponents();
     }
 }
@@ -355,7 +372,7 @@ void Entity::_transformFlagReset() {
     // this drove me. up the fucking wall.
     // for FOUR hours.
     
-    for (const auto& e : Entity::s_entityList) {
+    for (const auto& e : Entity::getEntityMap()) {
         if (e.second->m_queueTransformReset) {
             // set transformDirty to false, this is the end
             // of the frame as far as behaviour is aware.
@@ -383,7 +400,7 @@ fm::mat4 Entity::getRealMatrix() {
 
 void Entity::_pollPhysicsBehaviours(double delta) {
     // update all the components' physics() functions. 
-    for (const auto& e : Entity::s_entityList) {
+    for (const auto& e : Entity::getEntityMap()) {
         // cache the matrix before we performed any physics calculations
         e.second->m_physicsGlobalMatrixCache = e.second->transform.getGlobalMatrix();
         // set this to false now, it only becomes true if we do anything.
@@ -441,7 +458,7 @@ void Entity::_invalidateChildTransforms() {
 
     transform.m_globalDirty = true;
     // loop through every entity
-    for (auto e : s_entityList) {
+    for (auto e : getEntityMap()) {
         e.second->transform.m_globalDirty = true;
     }
 }

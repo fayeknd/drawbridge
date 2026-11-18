@@ -4,7 +4,7 @@
 #include <memory>
 #include <cstdint>
 #include <transform.hpp>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 #include <layer.hpp>
 #include <material.hpp>
 #include <reflectable.hpp>

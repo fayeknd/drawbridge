@@ -1,11 +1,11 @@
 #include <editorui/editorui.hpp>
-#include <debug.hpp>
+#include <utils/debug.hpp>
 #include <entity.hpp>
 #include <component/modeldraw.hpp>
 #include <renderer.hpp>
 #include <imgui/imgui_internal.h>
 #include <utils/logger.hpp>
-#include <debug.hpp>
+#include <utils/debug.hpp>
 #include <resources.hpp>
 
 using namespace Engine;
@@ -45,14 +45,14 @@ void EditorUI::init() {
 
     Logging::Logger::copyLog = consoleLog;
     
-    m_projectDir = ResourceManager::getBinaryDir().string() + '/' + resource_defaultProjectDir;
+    m_projectDir = ResourceManager::getBinaryDir().generic_string() + '/' + resource_defaultProjectDir;
 
     if (!std::filesystem::exists(m_projectDir)) {
         if (std::error_code ec; !std::filesystem::create_directory(m_projectDir, ec)) {
-            log().logError("Failed to create directory '{}'! Error: {}", m_projectDir.string(), ec.message());
+            log().logError("Failed to create directory '{}'! Error: {}", m_projectDir.generic_string(), ec.message());
         }
         else {
-            log().logInfo("Created new project directory at {}.", m_projectDir.string());
+            log().logInfo("Created new project directory at {}.", m_projectDir.generic_string());
         }
 
     }

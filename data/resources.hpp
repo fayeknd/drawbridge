@@ -7,7 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 #include <time.hpp>
 #include <reflectable.hpp>
 #include <serialise.hpp>
@@ -120,17 +120,14 @@ namespace Engine {
 
         static inline std::filesystem::path s_binaryDir = "none";
 
-        static Logging::Logger& log() {
-            static Logging::Logger instance("RESOURCE");
-            return instance;
-        }
+        static Logging::Logger& log();
 
         friend class Archive;
 
     public:
 
         // stores all the loaded archives. Uses their file path as the key.
-        static inline std::unordered_map<std::string, std::shared_ptr<Archive>> s_archiveCache;
+        static std::unordered_map<std::string, std::shared_ptr<Archive>> s_archiveCache;
 
         // Returns the path to the program executable.
         // if s_binaryDir is "none", it will compute the 
@@ -195,16 +192,14 @@ namespace Engine {
                 log().logWarning("Attempted to serialise a non-resource object! Nothing to serialise; nothing written.");
                 return false;
             }
-            // get the type description
-            const auto& desc = Reflection::getTypeRegistry().find(resource->getFullTypename())->second;
-            
-            // does this resource have reflected fields?
-            if (!desc->getFields) {
-                // nope, no point serialising nothing.
-                log().logWarning("Tried to serialise resource of type '{}' at '{}', but there were no serialisable fields.", desc->fullName, path);
+            const auto& registry = Reflection::getTypeRegistry();
+            std::string_view key = resource->getFullTypename();
+            auto it = registry.find(key);
+            if (it == registry.end()) {
+                log().logError("Reflection miss for '{}' (registry size: {})", key, registry.size());
                 return false;
             }
-
+            const auto& desc = it->second;
             // ok, we can actually serialise something now
 
             std::string fullPath;
@@ -227,8 +222,8 @@ namespace Engine {
                     std::string path = resource->getResourcePath();
                     
                     // try remove any archive prefix
-                    if (auto it = path.find_last_of(resource_archiveSeparator); it != std::string::npos) {
-                        path = path.substr(it + 1);
+                    if (auto it = path.find(resource_archiveSeparator); it != std::string::npos) {
+                        path = path.substr(it + resource_archiveSeparatorLen);
                     }
                     filename = proj_(path) + resource_defaultFileExt;
                 }
@@ -240,7 +235,7 @@ namespace Engine {
 
             // save the resource path
             resource->m_metaResourcePath = fullPath;
-            fullPath = getBinaryDir().string() + '/' + fullPath;
+            fullPath = getBinaryDir().generic_string() + '/' + fullPath;
 
             // create all the potential parent directories this file might need
             std::filesystem::path parentDir = std::filesystem::path(fullPath).parent_path();

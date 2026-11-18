@@ -1,7 +1,7 @@
 #include <component/collider.hpp>
 #include <physics/physics.hpp>
 #include <entity.hpp>
-#include <debug.hpp>
+#include <utils/debug.hpp>
 
 using namespace Engine;
 using namespace Physics;

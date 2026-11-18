@@ -189,18 +189,18 @@ EmbeddedTextureData Texture2D::getEmbeddedTexture(const aiScene* scene, int inde
 std::shared_ptr<Texture2D> Texture2D::createTextureFromPath(std::filesystem::path path, bool flipY, bool mipmap, GLuint format, GLuint filtering, GLuint internalFormat, GLuint wrapping, GLuint type) {
 
     // check if this texture is loaded already
-    if (auto tx = getTextureViaPath(path.string()); tx != nullptr) {
+    if (auto tx = getTextureViaPath(path.generic_string()); tx != nullptr) {
         return tx;
     }
     // no existing texture.
 
     stbi_set_flip_vertically_on_load(!flipY);
     auto texture = ResourceManager::newResource(new Texture2D);
-    texture->m_resourcePath = path.string();
+    texture->m_resourcePath = path.generic_string();
     // TODO : In case of error, return a default "error" texture instead.
     
     // check if the file is in an archive first
-    bytes rcFile = ResourceManager::loadRaw(path.string()); 
+    bytes rcFile = ResourceManager::loadRaw(path.generic_string()); 
     if (rcFile.size() > 0) {
 
         // process our raw bytes with stb_image.h.
@@ -228,13 +228,13 @@ std::shared_ptr<Texture2D> Texture2D::createTextureFromPath(std::filesystem::pat
     std::error_code ec;    
     if (!std::filesystem::exists(path, ec)) {
         // file read failed, print error message.
-        log().logError("Texture '{}' file read error! -> {}", path.string(), ec.message());
+        log().logError("Texture '{}' file read error! -> {}", path.generic_string(), ec.message());
         return nullptr;
     }
     // file read success!
 
     int x, y, c;
-    auto bytes = stbi_load(path.string().c_str(), &x, &y, &c, 4);
+    auto bytes = stbi_load(path.generic_string().c_str(), &x, &y, &c, 4);
     texture->m_channelCount = c;
     texture->m_txSize = {static_cast<unsigned int>(x), static_cast<unsigned int>(y)};
 

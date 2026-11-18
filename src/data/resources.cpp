@@ -11,10 +11,18 @@
 
 using namespace Engine;
 
+Logging::Logger& ResourceManager::log() {
+    static Logging::Logger instance("RESOURCE");
+    return instance;
+}
+
 // returns the archive path.
 const std::string& Archive::getPath() {
     return m_arPath;
 }
+
+std::unordered_map<std::string, std::shared_ptr<Archive>> ResourceManager::s_archiveCache = {};
+
 
 // returns an archive from a provided archive path.
 // if the archive is not cached, load an archive and cache it.
@@ -39,7 +47,7 @@ std::shared_ptr<Archive> Archive::getArchive(const std::string& path) {
     // zip load failed?
     if (!ar->m_zip) {
         // print the error code provided by zip_open and return a nullptr
-        ResourceManager::log().logError("Archive '{}' loading failed. Error code:", path, err);
+        ResourceManager::log().logError("Archive '{}' loading failed. Error code: {}", path, err);
         return nullptr;
     }
     // no error. set the ar path to the function provided path
@@ -98,14 +106,15 @@ const std::filesystem::path& ResourceManager::getBinaryDir() {
 std::shared_ptr<Archive> ResourceManager::getArchiveInPath(const std::string &path, std::string* outPath) {
     
     // get the first instance of the separator found in the string.
-    size_t index = path.find_first_of(resource_archiveSeparator);
+    size_t index = path.find(resource_archiveSeparator);
     if (index == std::string::npos) {
         // no instance of the separator in the string.
         return nullptr; 
     }
 
     // get the archive full path
-    std::string arStr = getBinaryDir().string() + '/' + path.substr(0, index);
+    std::filesystem::path fullArchivePath = getBinaryDir() / path.substr(0, index);
+    std::string arStr = fullArchivePath.generic_string();
 
     // get the archive from the cache or force load it.
     auto ar = Archive::getArchive(arStr);
@@ -198,6 +207,7 @@ bytes ResourceManager::loadRaw(const std::string& path, bool keepArchive) {
         s_archiveCache.erase(archive->m_arPath);
     }
 
+    log().logInfo("Loaded asset from path '{}'.", path);
     // return the read data.
     return buf;
 }

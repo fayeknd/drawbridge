@@ -1,6 +1,6 @@
 #pragma once
 #include <fm/fmath.hpp>
-#include <debug.hpp>
+#include <utils/debug.hpp>
 #include <component/component.hpp>
 #include <component/modeldraw.hpp>
 #include <physics/ray.hpp>

@@ -4,7 +4,7 @@
 #include <physics/rigidbody.hpp>
 #include <component/collider.hpp>
 #include <texture.hpp>
-#include <debug.hpp>
+#include <utils/debug.hpp>
 
 namespace Engine {
     

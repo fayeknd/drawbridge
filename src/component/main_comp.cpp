@@ -1,5 +1,5 @@
 #include <cachable.hpp>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 #include <physics/ray.hpp>
 #include <shader.hpp>
 #include <component/collider.hpp>

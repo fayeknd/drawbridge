@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <engine.h>
 #include <renderdata.hpp>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 #include <queue>
 
 namespace Engine {

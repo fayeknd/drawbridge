@@ -1,7 +1,7 @@
 #pragma once
 #include <gl_context.hpp>
 #include <unordered_map>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 
 namespace Engine {
 

@@ -11,10 +11,7 @@ namespace Engine::Serialise {
     // utility to get an asset path from a shared_ptr that may potentially be a resource.
     // see a registerResourcePtrType to see how this works
     using SharedPtrExtractor = std::function<IResource*(const void* sharedPtrAddr)>;
-    inline std::unordered_map<std::string, SharedPtrExtractor>& sharedPtrPathExtMap() {
-        static std::unordered_map<std::string, SharedPtrExtractor> map;
-        return map;
-    }
+    std::unordered_map<std::string, SharedPtrExtractor>& sharedPtrPathExtMap();
 
     // register a resource type (usage: Engine::Serialise::registerResourcePtrType<MyResource>("MyResource"))
     template <typename T>
@@ -53,10 +50,7 @@ namespace Engine::Serialise {
 
     // for containers like vector and unordered_map
     using ContainerSerialiser = std::function<void(const void* containerPtr, std::ostream& out, int indentLevel)>;
-    inline std::unordered_map<std::string, ContainerSerialiser>& containerSerialiserMap() {
-        static std::unordered_map<std::string, ContainerSerialiser> map;
-        return map;
-    }
+    std::unordered_map<std::string, ContainerSerialiser>& containerSerialiserMap();
 
     // serialise fields to an out stream
     void serialiseFieldsToStream(const std::vector<std::pair<ReflectableField, void*>>& fields, std::ostream& out, int indentLv = 0);

@@ -39,14 +39,14 @@ std::shared_ptr<Model> Model::createModelFromPath(std::filesystem::path path, st
     Assimp::Importer importer;
 
     // try get the model from an archive
-    bytes rcFile = ResourceManager::loadRaw(path.string()); 
+    bytes rcFile = ResourceManager::loadRaw(path.generic_string()); 
     if (rcFile.size() <= 0) {
         // file was not in an archive.
         // verify the path exists
         std::error_code ec;    
         if (!std::filesystem::exists(path, ec)) {
             // file read failed, print error message.
-            log().logError("Model '{}' file read error! -> {}", path.string(), ec.message());
+            log().logError("Model '{}' file read error! -> {}", path.generic_string(), ec.message());
             return nullptr;
         }
         std::ifstream file(path);
@@ -74,7 +74,7 @@ std::shared_ptr<Model> Model::createModelFromPath(std::filesystem::path path, st
 
     // verity assimp scene is valid
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
-        log().logError("Assimp Error '{}' on Model '{}'.", importer.GetErrorString(), path.string());
+        log().logError("Assimp Error '{}' on Model '{}'.", importer.GetErrorString(), path.generic_string());
         return nullptr;
     }
 
@@ -82,7 +82,7 @@ std::shared_ptr<Model> Model::createModelFromPath(std::filesystem::path path, st
     auto model = ResourceManager::newResource(new Model);
     // process the submeshes
     model->_processNode(scene->mRootNode, scene, materials);
-    model->m_resourcePath = path.string();
+    model->m_resourcePath = path.generic_string();
     return model;
 }
 

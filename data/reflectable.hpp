@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 
 namespace Engine {
     // no runtime overhead with marcos!
@@ -76,18 +76,20 @@ namespace Engine {
             void (*serialise)(const void* instancePtr, std::ostream& out, int indentLevel) = nullptr;
         };
 
+        TypeDescriptor& getOrCreateTypeDescriptor(std::string_view key);
+
         // use this to get the type information on type T
         template <typename T>
         struct TypeInfo {
-            static inline TypeDescriptor descriptor{};
+            static constexpr std::string_view getTypeKey() {
+                return __PRETTY_FUNCTION__;
+            }
+            static inline TypeDescriptor& descriptor = getOrCreateTypeDescriptor(getTypeKey());
             static void initTypeInfo() {}
         };
 
         // get the type registry
-        inline std::unordered_map<std::string_view, const TypeDescriptor*>& getTypeRegistry() {
-            static std::unordered_map<std::string_view, const TypeDescriptor*> registry;
-            return registry;
-        }
+        std::unordered_map<std::string_view, const TypeDescriptor*>& getTypeRegistry();
 
         // get object fields from types
         template <typename T>

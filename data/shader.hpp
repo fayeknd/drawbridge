@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <unordered_map>
 #include <memory>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 #include <texture.hpp>
 
 // just an identifier for a shader with no key passed through.

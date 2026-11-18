@@ -4,7 +4,7 @@
 #include <utils/debug.hpp>
 #include <component/collider.hpp>
 #include <physics/rigidbody.hpp>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 
 using namespace Engine;
 using namespace Physics;

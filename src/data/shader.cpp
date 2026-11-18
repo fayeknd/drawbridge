@@ -1,4 +1,4 @@
-#include "logger.hpp"
+#include <utils/logger.hpp>
 #include <shader.hpp>
 #include <iostream>
 #include <fstream>
@@ -52,7 +52,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createProgramFromPath(std::filesys
     // if shaderKey is unassigned, generate one from the filename.
     if (shaderKey == UNNAMED_SHADER) {
         // get the filename string
-        shaderKey = shaderSource.filename().string();
+        shaderKey = shaderSource.filename().generic_string();
 
         // remove the extension from the filename
         size_t slash = shaderKey.find_last_of('/');
@@ -67,11 +67,11 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createProgramFromPath(std::filesys
     // no cached shader found, continue.
 
     // attempt to read an archived file
-    bytes rcFile = ResourceManager::loadRaw(shaderSource.string()); 
+    bytes rcFile = ResourceManager::loadRaw(shaderSource.generic_string()); 
     if (rcFile.size() > 0) {
         // file was in an archive, load it as data instead.
         auto sh = createProgramFromData(rcFile.data(), rcFile.size(), shaderKey);
-        sh->m_resourcePath = shaderSource.string();
+        sh->m_resourcePath = shaderSource.generic_string();
         return sh;
     }
     // file was not in any archives in the string, continue loading 
@@ -98,7 +98,7 @@ std::shared_ptr<ShaderProgram> ShaderProgram::createProgramFromPath(std::filesys
 
     // create a program from the string stream data.
     auto sh = _createProgramFromStringStream(buf, shaderKey);
-    sh->m_resourcePath = shaderSource.string();
+    sh->m_resourcePath = shaderSource.generic_string();
     return sh;
 }
 

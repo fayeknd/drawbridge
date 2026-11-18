@@ -2,7 +2,7 @@
 #include <component/component.hpp>
 #include <component/camera.hpp>
 #include <imgui/imgui.h>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 
 namespace Engine {
 

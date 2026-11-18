@@ -141,10 +141,7 @@ namespace Engine {
 
         // there's a lot of these dotted around the program for a good reason.
         // check out gl_context.hpp for an explanation of why.
-        static Renderer& get() {
-            static Renderer instance;
-            return instance;
-        }
+        static Renderer& get();
 
         // returns the Renderer size.
         fm::uvec2 getWndSize();

@@ -1,6 +1,6 @@
 #include <resources.hpp>
 #include <filesystem>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 #include <utils.hpp>
 
 using namespace Engine::Logging;

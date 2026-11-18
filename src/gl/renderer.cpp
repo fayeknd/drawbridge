@@ -12,13 +12,18 @@
 #include <numeric>
 #include <input.hpp>
 #include <material.hpp>
-#include <debug.hpp>
+#include <utils/debug.hpp>
 #include <thread>
 #include <physics/physics.hpp>
 #include <layer.hpp>
 #include <framebuffer.hpp>
 
 using namespace Engine;
+
+Renderer& Renderer::get() {
+    static Renderer instance;
+    return instance;
+}
 
 // returns the glfw Renderer handle. (different from the HWND Renderer handle.)
 GLFWwindow* Renderer::getWndHandle() const {

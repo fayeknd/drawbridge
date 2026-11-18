@@ -1,6 +1,6 @@
-#include <debug.hpp>
+#include <utils/debug.hpp>
 #include <input.hpp>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 
 using namespace Engine;
 using namespace Engine::Debug;

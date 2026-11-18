@@ -4,6 +4,16 @@
 #include <gl_context.hpp>
 #include <entity.hpp>
 
+std::unordered_map<std::string, Engine::Serialise::SharedPtrExtractor>& Engine::Serialise::sharedPtrPathExtMap() {
+    static std::unordered_map<std::string, SharedPtrExtractor> map;
+    return map;
+}
+
+std::unordered_map<std::string, Engine::Serialise::ContainerSerialiser>& Engine::Serialise::containerSerialiserMap() {
+    static std::unordered_map<std::string, ContainerSerialiser> map;
+    return map;
+}
+
 // serialise reflected instance fields into an out stream
 void Engine::Serialise::serialiseFieldsToStream(const std::vector<std::pair<ReflectableField, void*>>& fields, std::ostream& out, int indentLevel) {
     // loop through all the fields
@@ -88,7 +98,7 @@ void Engine::Serialise::serialiseField(std::string_view fieldType, const void* f
                 if (res->getResourcePath() == "") {
                     // nope, make up a path
                     path = proj_"autogen/_auto-";
-                    path += std::string(res->getTypename()) + "-" + Time::timeStamp() + resource_defaultFileExt;
+                    path += std::string(res->getTypename()) + "-" + Time::timeStampForFile() + resource_defaultFileExt;
                 }
                 ResourceManager::saveResource(res, path);
                 out << "\"" << res->getMetaResourcePath() << "\"";

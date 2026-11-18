@@ -1,7 +1,7 @@
 #include <fm/fmath.hpp>
 #include <physics/rigidbody.hpp>
 #include <entity.hpp>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 #include <physics/physics.hpp>
 
 using namespace Engine;

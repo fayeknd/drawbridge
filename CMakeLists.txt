@@ -231,7 +231,7 @@ target_link_libraries(engine PUBLIC ${TARGET_LIBS})
 target_include_directories(engine PUBLIC ${ENGINE_TARGET_INCLUDES})
 
 target_link_libraries(drawbridge_editor PRIVATE engine)
-target_include_directories(drawbridge_editor PUBLIC ${EDITOR_TARGET_INCLUDES})
+target_include_directories(drawbridge_editor PUBLIC ${EDITOR_TARGET_INCLUDES} ${ENGINE_TARGET_INCLUDES})
 
 add_custom_command(TARGET drawbridge_editor POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory

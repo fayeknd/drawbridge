@@ -1,7 +1,7 @@
 #pragma once
 #include <gl_context.hpp>
 #include <texture.hpp>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 #include <cachable.hpp>
 #include <idpool.hpp>
 #include <material.hpp>
@@ -19,10 +19,7 @@ namespace Engine {
     protected:
 
         // the framebuffer ID pool
-        static inline IDPool<FramebufferID>& framebufferIDPool() {
-            static IDPool<FramebufferID> instance;
-            return instance;
-        }
+        static IDPool<FramebufferID>& framebufferIDPool();
 
         // the pointer to the camera this framebuffer MAY be on.
         // doesn't need to be a smart pointer, if this isn't null,

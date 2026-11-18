@@ -2,7 +2,7 @@
 #include <component/component.hpp>
 #include <idpool.hpp>
 #include <queue>
-#include <logger.hpp>
+#include <utils/logger.hpp>
 #include <layer.hpp>
 
 
@@ -59,15 +59,10 @@ namespace Engine {
 
         // create the entity ID pool
         // responsible for allocating and deallocating IDs
-        static inline IDPool<EntityID> s_entityPool; 
-        // create the entity list (use the id as the key)
-        // we DO want a shared_ptr here. if an entity somehow doesn't exist
-        // in this list, it will automatically be destroyed. this ensures
-        // if an entity exists, it is referenced in this unordered map.
-        static inline std::unordered_map<EntityID, std::shared_ptr<Entity>> s_entityList;
-
+        static IDPool<EntityID> s_entityPool; 
+        
         // where the entities that release() is called on are queued in.
-        static inline std::queue<EntityID> s_releaseQueue;
+        static std::queue<EntityID> s_releaseQueue;
 
         // the actual release function called.
         void _releaseImpl();
@@ -167,9 +162,11 @@ namespace Engine {
             return m_componentMap;
         }
 
-        static inline std::unordered_map<EntityID, std::shared_ptr<Entity>>& getEntityMap() {
-            return s_entityList;
-        }
+        // create the entity list (use the id as the key)
+        // we DO want a shared_ptr here. if an entity somehow doesn't exist
+        // in this list, it will automatically be destroyed. this ensures
+        // if an entity exists, it is referenced in this unordered map.
+        static std::unordered_map<EntityID, std::shared_ptr<Entity>>& getEntityMap();
 
         std::vector<std::weak_ptr<Entity>>& getChildren() {
             return m_children;

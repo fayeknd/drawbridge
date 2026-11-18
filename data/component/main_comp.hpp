@@ -1,7 +1,7 @@
 #pragma once
 #include <component/component.hpp>
 #include <texture.hpp>
-#include <debug.hpp>
+#include <utils/debug.hpp>
 
 namespace Engine {
     

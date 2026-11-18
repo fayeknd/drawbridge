@@ -212,6 +212,9 @@ endif()
 
 # core engine lib
 add_library(engine SHARED ${ENGINE_HEADERS} ${ENGINE_SOURCES})
+if (WIN32)
+    set_target_properties(engine PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
 add_dependencies(engine resources reflect_codegen)
 target_link_libraries(engine PUBLIC ${TARGET_LIBS})
 target_include_directories(engine PUBLIC ${ENGINE_TARGET_INCLUDES})

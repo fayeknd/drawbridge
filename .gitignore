@@ -6,3 +6,4 @@ CMakePresets.json
 _deps
 CMakeFiles/*
 data/generated/generated_reflection.hpp
+# do not add the imgui.ini to this file

@@ -212,15 +212,21 @@ endif()
 
 # core engine lib
 add_library(engine SHARED ${ENGINE_HEADERS} ${ENGINE_SOURCES})
-if (WIN32)
+# editor binary
+add_executable(drawbridge_editor ${EDITOR_SOURCES})
+
+if (MINGW)
+    target_link_options(engine PRIVATE "-Wl,--export-all-symbols")
+    target_link_options(drawbridge_editor PRIVATE "-Wl,--enable-auto-import")
+else()
     set_target_properties(engine PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
+
+
 add_dependencies(engine resources reflect_codegen)
 target_link_libraries(engine PUBLIC ${TARGET_LIBS})
 target_include_directories(engine PUBLIC ${ENGINE_TARGET_INCLUDES})
 
-# editor binary
-add_executable(drawbridge_editor ${EDITOR_SOURCES})
 target_link_libraries(drawbridge_editor PRIVATE engine)
 target_include_directories(drawbridge_editor PUBLIC ${EDITOR_TARGET_INCLUDES})
 

@@ -12,7 +12,7 @@ namespace Engine {
         virtual ~EditorUI() = default;
 
         // camera used for the ui
-        EXPORT std::shared_ptr<Camera> m_uiCam = nullptr;
+        std::shared_ptr<Camera> m_uiCam = nullptr;
         // shortcut to the imgui IO
         ImGuiIO* m_io;
 

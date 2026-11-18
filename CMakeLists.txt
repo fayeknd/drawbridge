@@ -192,8 +192,8 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 add_custom_command(
     OUTPUT ${GENERATED_HEADER}
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/codegen.py ${GENERATED_HEADER} ${ALL_TARGETS}
-    DEPENDS ${ALL_TARGETS} ${CMAKE_CURRENT_SOURCE_DIR}/tools/codegen.py
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/codegen.py ${GENERATED_HEADER} ${ENGINE_HEADERS}
+    DEPENDS ${ENGINE_HEADERS} ${CMAKE_CURRENT_SOURCE_DIR}/tools/codegen.py
     COMMENT "Generating reflection header map..."
     VERBATIM
 )

@@ -40,4 +40,4 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo Launching Editor executable...
-build\windows\editor.exe
+build\windows\drawbridge_editor.exe

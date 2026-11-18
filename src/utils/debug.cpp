@@ -35,7 +35,7 @@ void DebugUI::_createImGuiContext(GLFWwindow* wnd) {
     m_font_cfg.FontDataOwnedByAtlas = false; 
 
     // keep data alive
-    static bytes font = ResourceManager::loadRaw("stuff=>fonts/OpenSans_Bold.ttf");
+    static bytes font = ResourceManager::loadRaw("editor=>fonts/OpenSans_Bold.ttf");
 
     m_font = m_io->Fonts->AddFontFromMemoryTTF(
         font.data(),       

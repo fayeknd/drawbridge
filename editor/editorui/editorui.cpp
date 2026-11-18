@@ -25,7 +25,7 @@ void EditorUI::init() {
     // TESTING
     auto cube = Entity::create("Cube")->addComponent<ModelDraw>();
     cube->m_model = Model::primitive(Primitive::Cube);
-    cube->m_material->setAlbedoTx(Texture2D::createTextureFromPath("stuff=>textures/me trying to flirt.png"));
+    cube->m_material->setAlbedoTx(Texture2D::createTextureFromPath("editor=>textures/me trying to flirt.png"));
 
     cube->getEntity().addChild(Entity::create("TestChild"));
 
@@ -35,7 +35,7 @@ void EditorUI::init() {
     Renderer::get().setWndSize({1920, 1080});
     Renderer::get().m_drawView = false; 
 
-    m_uiCam->m_framebuffer->m_postProcessSteps.push_back(ShaderProgram::createProgramFromPath("stuff=>shaders/postprocess.glsl"));
+    m_uiCam->m_framebuffer->m_postProcessSteps.push_back(ShaderProgram::createProgramFromPath("editor=>shaders/postprocess.glsl"));
     m_uiCam->m_framebuffer->setResizeWithWnd(false);
 
     Logging::Logger::copyLog = consoleLog;

@@ -27,7 +27,7 @@ if [ "$1" == "-win" ]; then
     cmake --build build/windows
     
     echo "Launching Editor   executable..."
-    wine ./build/windows/editor.exe
+    wine ./build/windows/drawbridge_editor.exe
 else
     echo "Building for Linux, then running..."
     
@@ -53,5 +53,5 @@ else
     cmake --build build/linux 
     echo "Launching Editor binary..."
     
-    ./build/linux/editor
+    ./build/linux/drawbridge_editor
 fi 

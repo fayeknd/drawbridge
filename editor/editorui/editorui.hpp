@@ -9,6 +9,8 @@ namespace Engine {
     class EditorUI : public IComponent {
     public:
 
+        virtual ~EditorUI() = default;
+
         // camera used for the ui
         EXPORT std::shared_ptr<Camera> m_uiCam = nullptr;
         // shortcut to the imgui IO

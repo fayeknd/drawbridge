@@ -126,7 +126,7 @@ FetchContent_MakeAvailable(libzip)
 # rsc_source is /resources/ in the project directory
 # rsc_out is the output. (in the binary directory.)
 
-set(RSC_FILE "stuff")
+set(RSC_FILE "editor")
 
 set(RSC_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/resources")
 set(RSC_TARGET "${CMAKE_CURRENT_BINARY_DIR}/${RSC_FILE}")
@@ -157,7 +157,6 @@ file(GLOB_RECURSE ENGINE_HEADERS CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/data/*.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/data/*.hpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/editor/*.hpp"
 )
 
 # editor lib
@@ -218,18 +217,18 @@ target_link_libraries(engine PUBLIC ${TARGET_LIBS})
 target_include_directories(engine PUBLIC ${ENGINE_TARGET_INCLUDES})
 
 # editor binary
-add_executable(editor ${EDITOR_SOURCES})
-target_link_libraries(editor PRIVATE engine)
-target_include_directories(editor PUBLIC ${EDITOR_TARGET_INCLUDES})
+add_executable(drawbridge_editor ${EDITOR_SOURCES})
+target_link_libraries(drawbridge_editor PRIVATE engine)
+target_include_directories(drawbridge_editor PUBLIC ${EDITOR_TARGET_INCLUDES})
 
-add_custom_command(TARGET editor POST_BUILD
+add_custom_command(TARGET drawbridge_editor POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_CURRENT_SOURCE_DIR}/data"
         "${CMAKE_CURRENT_BINARY_DIR}/engine/headers"
     COMMENT "Copying headers to editor build dir..."
     VERBATIM
 )
-add_custom_command(TARGET editor POST_BUILD
+add_custom_command(TARGET drawbridge_editor POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_CURRENT_SOURCE_DIR}/tools"
         "${CMAKE_CURRENT_BINARY_DIR}/engine/tools"

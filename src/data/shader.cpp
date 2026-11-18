@@ -24,19 +24,19 @@ ShaderProgram::~ShaderProgram() {
 
 void ShaderProgram::_createDefaultShaders() {
     // lit shader
-    std::shared_ptr<ShaderProgram> lit = createProgramFromPath("stuff=>shaders/shader_lit.glsl", shader_litShader);
+    std::shared_ptr<ShaderProgram> lit = createProgramFromPath("editor=>shaders/shader_lit.glsl", shader_litShader);
     // mark this shader as don't delete to avoid cleanup.
     // we could just mark these as static but we could also do this.
     // and this is cooler i think. 
     lit->m_dontDelete = true;
 
-    std::shared_ptr<ShaderProgram> unlit = createProgramFromPath("stuff=>shaders/shader_unlit.glsl", shader_unlitShader);
+    std::shared_ptr<ShaderProgram> unlit = createProgramFromPath("editor=>shaders/shader_unlit.glsl", shader_unlitShader);
     unlit->m_dontDelete = true;
 
-    std::shared_ptr<ShaderProgram> col = createProgramFromPath("stuff=>shaders/collider.glsl", shader_colliderShader);
+    std::shared_ptr<ShaderProgram> col = createProgramFromPath("editor=>shaders/collider.glsl", shader_colliderShader);
     col->m_dontDelete = true;
 
-    std::shared_ptr<ShaderProgram> line = createProgramFromPath("stuff=>shaders/line.glsl", shader_lineShader);
+    std::shared_ptr<ShaderProgram> line = createProgramFromPath("editor=>shaders/line.glsl", shader_lineShader);
     line->m_dontDelete = true;
     // put any other permanent shaders here
 }

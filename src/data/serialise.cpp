@@ -87,7 +87,7 @@ void Engine::Serialise::serialiseField(std::string_view fieldType, const void* f
                 // does this path have a resource it can choose a name from?
                 if (res->getResourcePath() == "") {
                     // nope, make up a path
-                    path = std::string(resource_defaultProjectDir) + "autogen/_auto-";
+                    path = proj_"autogen/_auto-";
                     path += std::string(res->getTypename()) + "-" + Time::timeStamp() + resource_defaultFileExt;
                 }
                 ResourceManager::saveResource(res, path);

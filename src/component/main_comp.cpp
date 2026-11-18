@@ -76,16 +76,16 @@ void MainComponent::init() {
 
     // add some basic data to the renderer
     renderer->m_model = Model::primitive(Primitive::Cube);
-    renderer->m_material->setAlbedoTx(Texture2D::createTextureFromPath("stuff=>textures/me trying to flirt.png"));
+    renderer->m_material->setAlbedoTx(Texture2D::createTextureFromPath("editor=>textures/me trying to flirt.png"));
     renderer->m_material->m_data.m_albedoFac.w = 0.4f;
     renderer->m_material->m_data.m_hasTransparency = true;
 
     renderer2->m_model = Model::primitive(Primitive::Cube);
-    renderer2->m_material->setAlbedoTx(Texture2D::createTextureFromPath("stuff=>textures/me trying to flirt.png"));
+    renderer2->m_material->setAlbedoTx(Texture2D::createTextureFromPath("editor=>textures/me trying to flirt.png"));
     renderer2->m_material->m_data.m_albedoFac.w = 0.4f;
     renderer2->m_material->m_data.m_hasTransparency = true;
 
-    renderer3->m_model = Model::createModelFromPath("stuff=>models/bottle.fbx", &renderer3->m_materials);
+    renderer3->m_model = Model::createModelFromPath("editor=>models/bottle.fbx", &renderer3->m_materials);
     //renderer2->m_material->m_data.m_albedoFac.y = 0.4f;
 
     //square->setLayer(Layer::create("TestLayer", 1));

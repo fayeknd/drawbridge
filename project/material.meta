@@ -1,7 +1,7 @@
 DRAWBRIDGE_RES
 @type Engine::Material
 {
-m_albedoTx = "/home/faye/projects/gamebridge/build/linux/project/stuff=>textures/me trying to flirt.png.meta"
+m_albedoTx = "/home/faye/projects/gamebridge/build/linux/project/editor=>textures/me trying to flirt.png.meta"
 m_data {
     m_resourcePath = 
     m_albedoFac = (1, 1, 1, 1)
@@ -15,5 +15,5 @@ m_data {
     m_hasEmissionTx = 0
     m_hasTransparency = 0
 }
-m_program = "/home/faye/projects/gamebridge/build/linux/project/stuff=>shaders/shader_lit.glsl.meta"
+m_program = "/home/faye/projects/gamebridge/build/linux/project/editor=>shaders/shader_lit.glsl.meta"
 }

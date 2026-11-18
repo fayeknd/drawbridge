@@ -48,6 +48,7 @@ void ObjectRegistry::cleanup() {
             // found an object, unregister it.
             it->second->_unregister();
             erasedObjs++;
+            log().logInfo("Cleaned up cached instance of type '{}' with CacheID {}.", it->second->m_typeName, id);
         }
     }
 
@@ -59,10 +60,16 @@ void ObjectRegistry::cleanup() {
 
 // register this instance to the registry
 void ObjectRegistry::_register() {
-    log().logInfo("Registering new cached instance with CacheID {}.", m_cacheID);
     // the constructor generates a new id, we don't have to worry about that.
     registry().emplace(m_cacheID, shared_from_this());
     m_registered = true; 
+    
+    // _register() is not called often, so it's safe to use here.
+    if (auto reflectable = dynamic_cast<Reflection::IReflectable*>(this); reflectable) {
+        m_typeName = reflectable->getFullTypename();
+    }
+
+    log().logInfo("Registered new cached instance of type '{}' with CacheID {}.", m_typeName, m_cacheID);
 }
 
 // unregister this instance from the registry
@@ -71,11 +78,12 @@ void ObjectRegistry::_unregister() {
     // keep a reference until end of scope
     auto _ = shared_from_this();
 
-    log().logInfo("Unregistering cached instance with CacheID {}.", m_cacheID);
     // remove this from the registry
     registry().erase(m_cacheID);
     // release the cache ID for another instance to use
     instanceIDPool().releaseID(m_cacheID);
+
+    log().logInfo("Unregistered cached instance of type '{}' with CacheID {}.", m_typeName, m_cacheID);
 }
 
 // run the garbage collector every x minutes

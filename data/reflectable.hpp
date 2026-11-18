@@ -138,9 +138,7 @@ namespace Engine {
             virtual ~IReflectable() = default;
 
             // allows factories or Entity::addComponent<T>() to add the derived descriptor
-            void setTypeDescriptor(const Reflection::TypeDescriptor* desc) {
-                _typeDesc = desc;
-            }
+            void setTypeDescriptor(const Reflection::TypeDescriptor* desc);
 
             std::string_view getTypename() const {
                 return _typeDesc ? _typeDesc->name : reflection_uninitialised;

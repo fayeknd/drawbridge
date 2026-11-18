@@ -20,6 +20,11 @@ void EditorUI::init() {
     // imgui's context is within libengine.dll/so, so we need to make sure
     // we are using the correct context.
     ImGui::SetCurrentContext(Debug::DebugUI::get().getImGuiContext());
+    
+    // start copying the logger logs 
+    // TODO : rename this function lol
+    Logging::Logger::copyLog = consoleLog;
+    log().logInfo("Begun log intercepting.");
 
     m_uiCam = Entity::create("__EditorCam")->addComponent<Camera>();
     m_uiCam->m_clearCol = fm::col(0.1f, 0.1f, 0.1f, 1.0f);
@@ -43,8 +48,6 @@ void EditorUI::init() {
     m_uiCam->m_framebuffer->m_postProcessSteps.push_back(ShaderProgram::createProgramFromPath("editor=>shaders/postprocess.glsl"));
     m_uiCam->m_framebuffer->setResizeWithWnd(false);
 
-    Logging::Logger::copyLog = consoleLog;
-    
     m_projectDir = ResourceManager::getBinaryDir().generic_string() + '/' + resource_defaultProjectDir;
 
     if (!std::filesystem::exists(m_projectDir)) {

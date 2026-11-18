@@ -4,6 +4,7 @@
 #include <engine.h>
 #include <unordered_map>
 #include <utils/logger.hpp>
+#include <reflectable.hpp>
 
 namespace Engine { 
 
@@ -18,7 +19,7 @@ namespace Engine {
     // does not have to re-set any "thisindex" variables
     // on all classes. (with this, we would have to iterate
     // through every instance if we wanted to or not.)
-    class ObjectRegistry : public std::enable_shared_from_this<ObjectRegistry> {
+    class ObjectRegistry : public std::enable_shared_from_this<ObjectRegistry>{
     private:
  
         // has this instance been registere?
@@ -46,6 +47,8 @@ namespace Engine {
  
         // garbage collection timer
         static inline Timer s_gcTimer;
+
+        std::string_view m_typeName = "Unknown";
 
     public:
         // marks if the registry has changed.
@@ -108,7 +111,7 @@ namespace Engine {
             }
 
             // no object was found. the cacheid was invalid.
-            ObjectRegistry::log().logError("CacheID {} does not point to a valid cached instance!", cid);
+            //ObjectRegistry::log().logError("CacheID {} does not point to a valid cached instance!", cid);
             return nullptr;
         }
 

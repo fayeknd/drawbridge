@@ -14,4 +14,7 @@ namespace Engine::Reflection{
         return storage[typeKey];
     }
 
+    void IReflectable::setTypeDescriptor(const Reflection::TypeDescriptor* desc) {
+        _typeDesc = desc;
+    }
 }

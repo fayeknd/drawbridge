@@ -11,6 +11,10 @@
 using namespace Engine;
 using namespace Engine::Debug;
 
+ImGuiContext* DebugUI::getImGuiContext() {
+    return ImGui::GetCurrentContext();
+}
+
 void DebugUI::_createImGuiContext(GLFWwindow* wnd) {
 
     // https://github.com/ocornut/imgui/wiki/Getting-Started#example-if-you-are-using-glfw--openglwebgl

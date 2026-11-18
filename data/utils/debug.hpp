@@ -47,6 +47,7 @@ namespace Engine{
             void drawPropertyEditor();
             void _createImGuiContext(GLFWwindow* wnd);
             void _destroyImGuiContext();
+            ImGuiContext* getImGuiContext();
 
             ImGuiIO& getIO() { return *m_io; }
 

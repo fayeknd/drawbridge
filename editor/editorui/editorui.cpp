@@ -16,6 +16,11 @@ void consoleLog(std::string log) {
 
 void EditorUI::init() {
     // make the ui cam
+
+    // imgui's context is within libengine.dll/so, so we need to make sure
+    // we are using the correct context.
+    ImGui::SetCurrentContext(Debug::DebugUI::get().getImGuiContext());
+
     m_uiCam = Entity::create("__EditorCam")->addComponent<Camera>();
     m_uiCam->m_clearCol = fm::col(0.1f, 0.1f, 0.1f, 1.0f);
     

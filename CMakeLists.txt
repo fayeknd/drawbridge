@@ -187,6 +187,8 @@ set(GENERATED_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/data/generated/generated_refle
 
 list(REMOVE_DUPLICATES ALL_TARGETS)
 list(REMOVE_ITEM ALL_TARGETS "${GENERATED_HEADER}")
+list(REMOVE_DUPLICATES ENGINE_HEADERS)
+list(REMOVE_ITEM ENGINE_HEADERS "${GENERATED_HEADER}")
 
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
@@ -216,7 +218,10 @@ add_library(engine SHARED ${ENGINE_HEADERS} ${ENGINE_SOURCES})
 add_executable(drawbridge_editor ${EDITOR_SOURCES})
 
 if (MINGW)
-    target_link_options(engine PRIVATE "-Wl,--export-all-symbols")
+    target_link_options(engine PRIVATE 
+        "-Wl,--export-all-symbols"
+        "-Wl,--exclude-libs,libgcc.a:libgcc_eh.a:libstdc++.a:libmingw32.a:libmingwex.a:libglfw3.a:libassimp.a:libzip.a:libzs.a"
+    )
     target_link_options(drawbridge_editor PRIVATE "-Wl,--enable-auto-import")
 else()
     set_target_properties(engine PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
